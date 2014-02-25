@@ -1,5 +1,5 @@
 
-# Module dependencies.
+## Module dependencies.
 
 mongoose = require "mongoose"
 Schema = mongoose.Schema
@@ -8,7 +8,7 @@ timestamps = require "mongoose-times"
 
 STATUS = require "../enums/ticket_status"
 
-# Schema
+## Schema
 TicketSchema = new Schema
   title : String
   owner_id : String
@@ -21,7 +21,7 @@ TicketSchema = new Schema
     date : Date
   }]
 
-# Validations
+## Validations
 TicketSchema.plugin timestamps,
   created: "created_at"
   lastUpdated: "updated_at"
@@ -38,27 +38,30 @@ TicketSchema.path('owner_id').validate (owner_id)->
   return owner_id.length
 , 'Owner id cannot be blank'
 
-# Pre-save hook
+## Pre-save hook
 TicketSchema.pre 'save', (next)->
-  return next() if (!@isNew)
+  #console.log "[ticket::pre save] isNew:#{@isNew}"
+  return next() unless @isNew
 
   query =
-    $and :
-      title : @title
-      $or :
-        status :
-          $ne : STATUS.COMPLETE
-          $ne : STATUS.ABANDON
+    $and : [
+      {title : @title}
+      {status :
+        $ne : [STATUS.COMPLETE, STATUS.ABANDON]
+      }
+    ]
 
-  TicketSchema.findOne query, (err, ticket)->
-    return next err if err?
-    return "ticket already exist" if ticket?
+  theTitle = @title
+  mongoose.model('Ticket').findOne query, 'title', (err, ticket)->
+    #console.log "[ticket::pre save] err:#{err}, ticket:%j", ticket
+    return next(err) if err?
+    return next(new Error("ticket #{theTitle} already exist")) if ticket?
     next()
     return
   return
 
 
-# Methods
+## Instance Methods
 TicketSchema.methods =
 
   complete : (callback)->
@@ -80,6 +83,40 @@ TicketSchema.methods =
       date : Date.now()
     this.save(callback)
     return
+
+
+# mark a ticket as completed
+# @param {Object} query, valid keys: id(:String), title(:String)
+# @param {Callback} callback
+TicketSchema.statics.changeStatus = (query, status, callback)->
+
+  callback(new Error "invalid status:#{status}") unless STATUS.isValid status
+
+  where = []
+  if query.title? then where.push title:query.title
+  else if query.id? then where.push id : query.id
+  else callback(new Error("bad query, missing id neither title"))
+
+  switch status
+    when STATUS.COMPLETE
+      # abandoned ticket must not be mark as completed
+      where.push
+        status :
+          $ne : STATUS.ABANDON
+
+    when STATUS.ABANDON
+      # completed ticket must not be mark as abandoned
+      where.push
+        status :
+          $ne : STATUS.COMPLETE
+
+    when STATUS.PROCESSING
+      # only pending ticket could be processing
+      where.push
+        status : STATUS.PENDING
+
+  this.findOneAndUpdate ($and:where), {status: STATUS.COMPLETE}, callback
+  return
 
 mongoose.model('Ticket', TicketSchema)
 

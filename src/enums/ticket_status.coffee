@@ -1,3 +1,6 @@
+
+ALL_STATUS = [ 'pending','processing','completed','abandoned']
+
 module.exports =
 
   PENDING : 'pending'
@@ -8,6 +11,8 @@ module.exports =
 
   ABANDON : 'abandoned'
 
+  isValid : (status)->
+    return ~ALL_STATUS.indexOf status
 
 
 
