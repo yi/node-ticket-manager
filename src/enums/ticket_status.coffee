@@ -4,9 +4,9 @@ module.exports =
 
   PROCESSING : 'processing'
 
-  COMPLETE : 'complete'
+  COMPLETE : 'completed'
 
-  ABANDON : 'abandon'
+  ABANDON : 'abandoned'
 
 
 
