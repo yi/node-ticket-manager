@@ -21,7 +21,7 @@
       "url": "https://github.com/yi/node-ticket-manager/blob/master/LICENSE"
     }
   ],
-  "main": "lib/ticket-manager",
+  "main": "lib/index",
   "engines": {
     "node": ">= 0.8.0"
   },
@@ -35,6 +35,7 @@
     "mongoose": "3.8.6",
     "underscore": "1.5.2",
     "mongoose-times": "0.1.0",
+    "mongoose-paginator": "0.1.2",
     "udid": "0.1.4",
     "async": "0.2.10",
     "request": ">=2.27.0"

@@ -5,6 +5,7 @@ mongoose = require "mongoose"
 Schema = mongoose.Schema
 _ = require 'underscore'
 timestamps = require "mongoose-times"
+paginator = require 'mongoose-paginator'
 
 STATUS = require "../enums/ticket_status"
 
@@ -25,11 +26,17 @@ TicketSchema = new Schema
     date : Date
   }]
 
-## Validations
+## Plugins
 TicketSchema.plugin timestamps,
   created: "created_at"
   lastUpdated: "updated_at"
 
+TicketSchema.plugin paginator,
+  limit: 50,
+  defaultKey: '_id',
+  direction: 1
+
+## Validations
 TicketSchema.path('title').validate (title)->
   return title.length
 , 'Title cannot be blank'
@@ -125,6 +132,16 @@ TicketSchema.statics.addComment = (id, name, kind, content, callback)->
 
   this.findByIdAndUpdate id, update, callback
   return
+
+# !not working yet!
+TicketSchema.statics.list = (status, after, callback)->
+  where = []
+  if STATUS.isValid status then where.push status : status
+  if after? then where.push after:after
+  where = {
+    $and : where
+  }
+  this.paginate(where, '_id').execPagination callback
 
 mongoose.model('Ticket', TicketSchema)
 
