@@ -6,5 +6,6 @@
 # Licensed under the MIT license.
 ##
 
-exports.awesome = ->
+# issue a new ticket
+exports.issue = (id, data)->
   return 'awesome'

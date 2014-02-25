@@ -31,6 +31,14 @@
     "distill": "distill -i ./src/server.coffee -o ./dist/maga.js",
     "test": "mocha test"
   },
+  "dependencies": {
+    "mongoose": "3.8.6",
+    "underscore": "1.5.2",
+    "mongoose-times": "0.1.0",
+    "udid": "0.1.4",
+    "async": "0.2.10",
+    "request": ">=2.27.0"
+  },
   "devDependencies": {
     "chai": ">=1.2.0",
     "mocha": ">=1.3.2",
