@@ -1,8 +1,8 @@
 {
-  "name": "ticket-system",
-  "description": "a simple ticket system contians a centeral ticket dispatcher and distributed workers. This system is written in NodeJS, runing on MongoDB",
+  "name": "ticket-manager",
+  "description": "a simple ticket manager contians a centeral ticket dispatcher and distributed workers. This module is written in NodeJS, runing on MongoDB",
   "version": "0.1.0",
-  "homepage": "https://github.com/yi/node-ticket-system",
+  "homepage": "https://github.com/yi/node-ticket-manager",
   "author": {
     "name": "yi",
     "email": "yi2004@gmail.com",
@@ -10,18 +10,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/yi/node-ticket-system.git"
+    "url": "git://github.com/yi/node-ticket-manager.git"
   },
   "bugs": {
-    "url": "https://github.com/yi/node-ticket-system/issues"
+    "url": "https://github.com/yi/node-ticket-manager/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/yi/node-ticket-system/blob/master/LICENSE"
+      "url": "https://github.com/yi/node-ticket-manager/blob/master/LICENSE"
     }
   ],
-  "main": "lib/ticket-system",
+  "main": "lib/ticket-manager",
   "engines": {
     "node": ">= 0.8.0"
   },
