@@ -115,8 +115,13 @@ TicketSchema.statics.changeStatus = (query, status, callback)->
       where.push
         status : STATUS.PENDING
 
-  this.findOneAndUpdate ($and:where), {status: STATUS.COMPLETE}, callback
+  this.findOneAndUpdate ($and:where), {status: status}, callback
   return
+
+TicketSchema
+
+
+
 
 mongoose.model('Ticket', TicketSchema)
 
