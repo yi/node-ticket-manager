@@ -6,14 +6,14 @@
 should = require "should"
 _ = require "underscore"
 
-STATUS = require "../enums/ticket_status"
+STATUS = require "../ticket_status"
 
 config = require "./config"
 mongoose = require('mongoose')
 mongoose.connect(config.db)
 mongoose.set('debug', true)
 
-require "../models/ticket"
+require "../ticket"
 
 Ticket = mongoose.model('Ticket')
 

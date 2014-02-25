@@ -7,7 +7,7 @@ _ = require 'underscore'
 timestamps = require "mongoose-times"
 paginator = require 'mongoose-paginator'
 
-STATUS = require "../enums/ticket_status"
+STATUS = require "./ticket_status"
 
 MIN_FIELD_SELECTION =
   select : 'id'
