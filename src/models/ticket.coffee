@@ -8,15 +8,19 @@ timestamps = require "mongoose-times"
 
 STATUS = require "../enums/ticket_status"
 
+MIN_FIELD_SELECTION =
+  select : 'id'
+
 ## Schema
 TicketSchema = new Schema
   title : String
   owner_id : String
   status : {type: String, default: STATUS.PENDING }
   content : Schema.Types.Mixed
+  #comments : [Schema.Types.Mixed]
   comments : [{
     name : String
-    type : String
+    kind : String
     content : String
     date : Date
   }]
@@ -62,40 +66,21 @@ TicketSchema.pre 'save', (next)->
 
 
 ## Instance Methods
-TicketSchema.methods =
-
-  complete : (callback)->
-    this.status = STATUS.COMPLETE
-    this.save(callback)
-    return
-
-  abandon : (callback)->
-    this.status = STATUS.ABANDON
-    this.save(callback)
-    return
-
-  appendLog : (name, type, body, callback)->
-    return callback("missing log content") unless log?
-    this.log.push
-      name : name
-      type : type
-      body : body
-      date : Date.now()
-    this.save(callback)
-    return
+#TicketSchema.methods =
 
 
 # mark a ticket as completed
 # @param {Object} query, valid keys: id(:String), title(:String)
 # @param {Callback} callback
 TicketSchema.statics.changeStatus = (query, status, callback)->
+  console.log "[ticket::changeStatus] "
 
-  callback(new Error "invalid status:#{status}") unless STATUS.isValid status
+  return callback(new Error "invalid status:#{status}") unless STATUS.isValid status
 
   where = []
   if query.title? then where.push title:query.title
   else if query.id? then where.push id : query.id
-  else callback(new Error("bad query, missing id neither title"))
+  else return callback(new Error("bad query, missing id neither title"))
 
   switch status
     when STATUS.COMPLETE
@@ -115,24 +100,30 @@ TicketSchema.statics.changeStatus = (query, status, callback)->
       where.push
         status : STATUS.PENDING
 
-  this.findOneAndUpdate ($and:where), {status: status}, callback
+  this.findOneAndUpdate ($and:where), {status: status}, MIN_FIELD_SELECTION, (err, ticket)=>
+    console.log "[ticket] err:#{err}, ticket:%j", ticket
+    return callback err if err?
+    return callback(new Error "missing ticket for query: #{JSON.stringify(query)}") unless ticket?
+    this.addComment ticket.id, "system", "primary", "change ticket status to #{status}", callback
+    return
+
   return
 
-TicketSchema.statics.addComment = (id, name, type, content, callback)->
-  unless id? and name? and type? and content? and callback?
-    return callback(new Error("missing arrgument. id:#{id}, name:#{name}, type:#{type}, content:#{content}, callback:#{callback}"))
-  comment =
-    name : name
-    type : type
-    content : content
-    date : Date.now()
+TicketSchema.statics.addComment = (id, name, kind, content, callback)->
+  console.log "[ticket::addComment]"
 
-  this.findById id, (err, ticket)->
-    callback err if err?
-    callback(new Error "missing ticket #{id}") unless ticket?
-    ticket.comments.push comment
-    ticket.save callback
-    return
+  unless id? and name? and kind? and content? and callback?
+    return callback(new Error("missing arrgument. id:#{id}, name:#{name}, kind:#{kind}, content:#{content}, callback:#{callback}"))
+
+  update =
+    $push :
+      comments :
+        name : name
+        kind : kind
+        content : content
+        date : Date.now()
+
+  this.findByIdAndUpdate id, update, callback
   return
 
 mongoose.model('Ticket', TicketSchema)

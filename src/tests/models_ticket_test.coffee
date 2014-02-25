@@ -92,9 +92,11 @@ describe "test", ->
 
     it "should able to add comment to a ticket", (done)->
       Ticket.findOne {title:SAMPLE_TITLE_2}, (err, ticket)->
+        console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
         should.not.exist err
         should.exist ticket
         Ticket.addComment ticket.id, "worker", "info", "test comment", (err, ticket)->
+          console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
           should.not.exist err
           should.exist ticket
           _.last(ticket.comments).content.should.eql("test comment")
