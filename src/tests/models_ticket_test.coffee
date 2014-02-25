@@ -4,6 +4,7 @@
 
 ## Module dependencies
 should = require "should"
+_ = require "underscore"
 
 STATUS = require "../enums/ticket_status"
 
@@ -88,6 +89,16 @@ describe "test", ->
         ticket.status.should.eql(STATUS.PROCESSING)
         ticket.title.should.eql(SAMPLE_TITLE_2)
         done()
+
+    it "should able to add comment to a ticket", (done)->
+      Ticket.findOne {title:SAMPLE_TITLE_2}, (err, ticket)->
+        should.not.exist err
+        should.exist ticket
+        Ticket.addComment ticket.id, "worker", "info", "test comment", (err, ticket)->
+          should.not.exist err
+          should.exist ticket
+          _.last(ticket.comments).content.should.eql("test comment")
+          done()
 
 
 

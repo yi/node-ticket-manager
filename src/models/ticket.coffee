@@ -17,7 +17,7 @@ TicketSchema = new Schema
   comments : [{
     name : String
     type : String
-    body : String
+    content : String
     date : Date
   }]
 
@@ -118,10 +118,22 @@ TicketSchema.statics.changeStatus = (query, status, callback)->
   this.findOneAndUpdate ($and:where), {status: status}, callback
   return
 
-TicketSchema
+TicketSchema.statics.addComment = (id, name, type, content, callback)->
+  unless id? and name? and type? and content? and callback?
+    return callback(new Error("missing arrgument. id:#{id}, name:#{name}, type:#{type}, content:#{content}, callback:#{callback}"))
+  comment =
+    name : name
+    type : type
+    content : content
+    date : Date.now()
 
-
-
+  this.findById id, (err, ticket)->
+    callback err if err?
+    callback(new Error "missing ticket #{id}") unless ticket?
+    ticket.comments.push comment
+    ticket.save callback
+    return
+  return
 
 mongoose.model('Ticket', TicketSchema)
 
