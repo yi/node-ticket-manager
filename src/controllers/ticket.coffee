@@ -1,6 +1,6 @@
 
 # list tickets
-exports.list = (req, res, next)->
-  res.render 'home/index',
-    title: 'Demo'
+exports.index = (req, res, next)->
+  res.render 'tickets/index',
+    title: 'All Tickets'
   return

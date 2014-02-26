@@ -26,8 +26,8 @@ schemaStructure =
     date : Date
   }]
 
-schemaOptions =
-  capped : 32768
+schemaOptions = {}
+  #capped : 32768
 
 TicketSchema = new Schema(schemaStructure, schemaOptions)
 

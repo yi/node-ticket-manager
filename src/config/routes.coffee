@@ -12,7 +12,7 @@ module.exports = (app, passport, auth)->
 
   # this is home page
   controller = require "../controllers/ticket"
-  app.get '/', controller.list
+  app.get '/', controller.index
 
 
 

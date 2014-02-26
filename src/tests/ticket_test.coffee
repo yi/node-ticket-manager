@@ -8,7 +8,7 @@ _ = require "underscore"
 
 STATUS = require "../enums/ticket_status"
 
-config = require "./config"
+config = require("../config/config")['development']
 mongoose = require('mongoose')
 mongoose.connect(config.db)
 mongoose.set('debug', true)
@@ -33,8 +33,8 @@ SAMPLE_CONTENT_1 =
 ## Test cases
 describe "test", ->
 
-  after (done)->
-    mongoose.connection.db.dropCollection 'tickets', done
+  #after (done)->
+    #mongoose.connection.db.dropCollection 'tickets', done
 
   describe "models/ticket", ->
 
