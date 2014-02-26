@@ -33,8 +33,8 @@ SAMPLE_CONTENT_1 =
 ## Test cases
 describe "test", ->
 
-  #after (done)->
-    #mongoose.connection.db.dropCollection 'tickets', done
+  after (done)->
+    mongoose.connection.db.dropCollection 'tickets', done
 
   describe "models/ticket", ->
 
@@ -98,14 +98,54 @@ describe "test", ->
         console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
         should.not.exist err
         should.exist ticket
-        Ticket.addComment ticket.id, "worker", "info", "test comment", (err, ticket)->
+        comment =
+          name : "worker"
+          kind : "info"
+          content : "test comment"
+        Ticket.addComment ticket.id, comment, (err, ticket)->
           console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
           should.not.exist err
           should.exist ticket
-          _.last(ticket.comments).content.should.eql("test comment")
+          _.last(ticket.comments).content.should.eql(comment.content)
           done()
 
+    it "arrange assignment", (done)->
 
+      ticket = new Ticket
+        title : "for assignment 01"
+        owner_id : 'test'
+        category : 'assignment'
+        content : "for assignment 01"
+      ticket.save (err, ticket)->
+        console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+        should.not.exist err
+
+        ticket = new Ticket
+          title : "for assignment 02"
+          owner_id : 'test'
+          category : 'assignment'
+          content : "for assignment 02"
+        ticket.save (err, ticket)->
+          console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+          should.not.exist err
+
+          ticket = new Ticket
+            title : "for assignment 03"
+            owner_id : 'test'
+            category : 'assignment'
+            content : "for assignment 03"
+          ticket.save (err, ticket)->
+            console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+            should.not.exist err
+            workerOptions =
+              worker : "assignment worker"
+              category : "assignment"
+            Ticket.arrangeAssignment workerOptions, (err, ticket)->
+              console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+              should.not.exist err
+              should.exist ticket
+              ticket.title.should.eql "for assignment 01"
+              done()
 
 
 

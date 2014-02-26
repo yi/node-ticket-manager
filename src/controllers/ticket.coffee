@@ -26,8 +26,21 @@ exports.show = (req, res, next)->
     return
   return
 
-#
+
+# POST /api/tickets/new
+exports.create = (req, res, next)->
+  ticket = new Ticket(req.body)
+  Ticket.save (err)=>
+    return next err if err?
+    return res.json ticket
+  return
+
+# PUT '/api/tickets/assign
 exports.assign = (req, res, next)->
+  Ticket.arrangeAssignment req.body, (err, ticket) ->
+    return next(err) if err?
+    return next() unless ticket?
+    return res.json ticket
   return
 
 #
@@ -40,10 +53,6 @@ exports.complete = (req, res, next)->
 
 #
 exports.giveup = (req, res, next)->
-  return
-
-#
-exports.create = (req, res, next)->
   return
 
 
