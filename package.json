@@ -32,6 +32,10 @@
     "test": "mocha test"
   },
   "dependencies": {
+    "express": "3.4.8",
+    "jade": "1.1.5",
+    "connect-mongo": "0.4.0",
+    "connect-flash": "0.1.1",
     "mongoose": "3.8.6",
     "underscore": "1.5.2",
     "mongoose-times": "0.1.0",
