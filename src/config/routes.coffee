@@ -13,6 +13,13 @@ module.exports = (app, passport, auth)->
   # this is home page
   controller = require "../controllers/ticket"
   app.get '/', controller.index
+  app.get '/tickets', controller.index
+
+  app.put '/api/tickets/assign', controller.assign
+  app.post '/api/tickets/new', controller.create
+  app.put '/api/tickets/:id/comment', controller.comment
+  app.put '/api/tickets/:id/complete', controller.complete
+  app.put '/api/tickets/:id/giveup', controller.giveup
 
 
 
