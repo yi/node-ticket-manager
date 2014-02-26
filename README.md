@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/yi/node-ticket-manager.png?branch=master)](https://travis-ci.org/yi/node-ticket-manager)
+# ticket-system
 
-# ticket-system [![Build Status](https://secure.travis-ci.org/yi/node-ticket-system.png?branch=master)](http://travis-ci.org/yi/node-ticket-system)
+[![Build Status](https://travis-ci.org/yi/node-ticket-manager.png?branch=master)](https://travis-ci.org/yi/node-ticket-manager)
 
 a simple ticket system contians a centeral ticket dispatcher and distributed workers. This system is written in NodeJS, runing on MongoDB
 

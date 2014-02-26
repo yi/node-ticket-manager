@@ -16,15 +16,15 @@ describe "test api", ->
   before () ->
     # before test happen
 
-  PATH = "/api/tickets/new"
-  describe PATH, ->
+  describe "/api/tickets/new", ->
+    path = "/api/tickets/new"
 
     it "should create ticket", (done) ->
       title = "title of ticket #{TIMESTAMP}"
       owner = "admin"
       options =
         method: 'POST'
-        url: "#{HOST}#{PATH}"
+        url: "#{HOST}#{path}"
         json :
           title : title
           owner_id : owner
@@ -50,7 +50,7 @@ describe "test api", ->
       owner = "admin"
       options =
         method: 'POST'
-        url: "#{HOST}#{PATH}"
+        url: "#{HOST}#{path}"
         json :
           title : title
           owner_id : owner
@@ -67,10 +67,32 @@ describe "test api", ->
         res.statusCode.should.not.eql 200
         done()
 
-  PATH = "/api/tickets/assign"
-  describe PATH, ->
-
+  describe "/api/tickets/assign", ->
+    path = "/api/tickets/assign"
     it "assign ticket to worker", (done)->
+      options =
+        method: 'PUT'
+        url: "#{HOST}#{path}"
+        json :
+          worker : "test worker"
+          category : "test api"
+
+      request options, (err, res, body)->
+        console.log "[api_test] \n\t\terr:%j \n\t\tres:%j \n\t\tbody:%j", err, res.statusCode, body
+
+        should.not.exist err
+        should.exist res
+        res.statusCode.should.eql 200
+        done()
+
+    # here: TODO: hold the ticket in memory, comment it and compelte it
+
+
+
+
+
+
+
 
 
 

@@ -120,7 +120,7 @@ TicketSchema.statics.changeStatus = (query, status, callback)->
       where.push
         status : STATUS.PENDING
 
-  this.findOneAndUpdate ($and:where), {status: status}, (err, ticket)=>
+  this.findOneAndUpdate ($and:where), {status: status, updated_at : Date.now()}, (err, ticket)=>
     console.log "[ticket] err:#{err}, ticket:%j", ticket
     return callback err if err?
     return callback(new Error "missing ticket for query: #{JSON.stringify(query)}") unless ticket?
@@ -149,6 +149,8 @@ TicketSchema.statics.addComment = (id, comment, callback)->
   update =
     $push :
       comments : comment
+    $set :
+      updated_at : Date.now()
 
   this.findByIdAndUpdate id, update, callback
   return
