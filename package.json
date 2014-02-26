@@ -45,6 +45,7 @@
     "request": ">=2.27.0"
   },
   "devDependencies": {
+    "nodemon": ">=1.0.14",
     "chai": ">=1.2.0",
     "mocha": ">=1.3.2",
     "should": ">=1.1.0"
