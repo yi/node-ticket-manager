@@ -18,6 +18,7 @@ MIN_FIELD_SELECTION =
 schemaStructure =
   title : String
   owner_id : String
+  attempts : {type:Number, default: 0}
   category : String
   status : {type: String, default: STATUS.PENDING }
   content : Schema.Types.Mixed
