@@ -8,13 +8,12 @@ block pageHeader
       Detais
 
   .page-header
-    h1 Ticket:
-      small=ticket.id
+    h1=ticket.title
+      small #
+        =ticket.id
 
 block content
   .row
-    .col-md-1.input-lg.text-muted title:
-    .col-md-11.input-lg=ticket.title
 
     .col-md-1.input-lg.text-muted  owner:
     .col-md-3.input-lg=ticket.owner_id
@@ -25,6 +24,15 @@ block content
     .col-md-1.input-lg.text-muted  status:
     .col-md-3.input-lg
       !=helper.genLabelByStatus(ticket.status)
+
+    .col-md-1.input-lg.text-muted  updated:
+    .col-md-3.input-lg
+      !=helper.genDateTag(ticket.updated_at)
+    .col-md-1.input-lg.text-muted  created:
+    .col-md-3.input-lg
+      !=helper.genDateTag(ticket.created_at)
+    .col-md-1.input-lg.text-muted  attempts:
+    .col-md-3.input-lg=ticket.attempts
 
   h2
     small Content

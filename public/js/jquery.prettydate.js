@@ -165,19 +165,19 @@
 
 	$.prettyDate.messages = {
 		now: 'just now',
-		minute: '1 minute ago',
-		minutes: $.prettyDate.template('{0} minutes ago'),
-		hour: '1 hour ago',
-		hours: $.prettyDate.template('{0} hours ago'),
+		minute: '1 min ago',
+		minutes: $.prettyDate.template('{0} min ago'),
+		hour: '1 hr ago',
+		hours: $.prettyDate.template('{0} hr ago'),
 		yesterday: 'Yesterday',
-		dayBeforeYesterday: 'Two days ago',
-		days: $.prettyDate.template('{0} days ago'),
-		week: '1 week ago',
-		weeks: $.prettyDate.template('{0} weeks ago'),
-		month: '1 month ago',
-		months: $.prettyDate.template('{0} months ago'),
-		year: '1 year ago',
-		years: $.prettyDate.template('{0} years ago')
+		dayBeforeYesterday: '2d ago',
+		days: $.prettyDate.template('{0}d ago'),
+		week: '1w ago',
+		weeks: $.prettyDate.template('{0}w ago'),
+		month: '1m ago',
+		months: $.prettyDate.template('{0}m ago'),
+		year: '1y ago',
+		years: $.prettyDate.template('{0}y ago')
 	};
 
 	/**

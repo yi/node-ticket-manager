@@ -21,7 +21,8 @@ block content
         .col-md-2 id
         .col-md-5 title
         .col-md-1 category
-        .col-md-2.text-right updated at
+        .col-md-1.text-right created
+        .col-md-1.text-right updated
         .col-md-1=" "
 
     .list-group
@@ -35,7 +36,9 @@ block content
                 code=ticket.id
             .col-md-5=ticket.title
             .col-md-1=ticket.category
-            .col-md-2.text-right
+            .col-md-1.text-right
+              !=helper.genDateTag(ticket.created_at)
+            .col-md-1.text-right
               !=helper.genDateTag(ticket.updated_at)
             .col-md-1.text-right
               i.fa.fa-chevron-right

@@ -30,7 +30,7 @@ exports.show = (req, res, next)->
 # POST /api/tickets/new
 exports.create = (req, res, next)->
   ticket = new Ticket(req.body)
-  Ticket.save (err)=>
+  ticket.save (err)=>
     return next err if err?
     return res.json ticket
   return
