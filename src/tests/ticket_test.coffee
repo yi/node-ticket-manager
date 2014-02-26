@@ -109,6 +109,18 @@ describe "test", ->
           _.last(ticket.comments).content.should.eql(comment.content)
           done()
 
+    it "arrange nothing when no avaliable ticket", (done)->
+
+      workerOptions =
+        worker : "assignment worker"
+        category : "assignment"
+
+      Ticket.arrangeAssignment workerOptions, (err, ticket)->
+        console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+        should.not.exist err
+        should.not.exist ticket
+        done()
+
     it "arrange assignment", (done)->
 
       ticket = new Ticket
@@ -144,10 +156,24 @@ describe "test", ->
               console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
               should.not.exist err
               should.exist ticket
+              ticket.status.should.eql STATUS.PROCESSING
               ticket.title.should.eql "for assignment 01"
               done()
 
 
+    it "always arrange eldest assignment", (done)->
+
+      workerOptions =
+        worker : "assignment worker"
+        category : "assignment"
+
+      Ticket.arrangeAssignment workerOptions, (err, ticket)->
+        console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+        should.not.exist err
+        should.exist ticket
+        ticket.title.should.eql "for assignment 02"
+        ticket.status.should.eql STATUS.PROCESSING
+        done()
 
 
 
