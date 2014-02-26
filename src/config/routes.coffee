@@ -14,6 +14,7 @@ module.exports = (app, passport, auth)->
   controller = require "../controllers/ticket"
   app.get '/', controller.index
   app.get '/tickets', controller.index
+  app.get '/tickets/:id', controller.show
 
   app.put '/api/tickets/assign', controller.assign
   app.post '/api/tickets/new', controller.create

@@ -24,7 +24,8 @@ block content
 
     each ticket in tickets
       tr
-        td=ticket.status
+        td
+          !=helper.genLabelByStatus(ticket.status)
         td
           code=ticket.id
         td

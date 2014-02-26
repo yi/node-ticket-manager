@@ -1,0 +1,50 @@
+extends ../layouts/default
+
+block pageHeader
+  ol.breadcrumb
+    li
+      a(href="/tickets") Tickets
+    li.active
+      Detais
+
+  .page-header
+    h1 Ticket:
+      small=ticket.id
+
+block content
+  .row
+    .col-md-1.input-lg.text-muted title:
+    .col-md-11.input-lg=ticket.title
+
+    .col-md-1.input-lg.text-muted  owner:
+    .col-md-3.input-lg=ticket.owner_id
+
+    .col-md-1.input-lg.text-muted  category:
+    .col-md-3.input-lg=ticket.category
+
+    .col-md-1.input-lg.text-muted  status:
+    .col-md-3.input-lg
+      !=helper.genLabelByStatus(ticket.status)
+
+  h2
+    small Content
+  .well
+    pre=JSON.stringify(ticket.content)
+
+  h2
+    small History
+
+  ul.list-group
+    each comment in ticket.comments
+      li.list-group-item
+        .row
+          .col-md-1
+            span.label(class="label-#{comment.kind}")=comment.name
+          .col-md-9=comment.content
+          .col-md-2
+            !=helper.genDateTag(comment.date)
+
+
+
+
+
