@@ -16,6 +16,7 @@ MIN_FIELD_SELECTION =
 schemaStructure =
   title : String
   owner_id : String
+  category : String
   status : {type: String, default: STATUS.PENDING }
   content : Schema.Types.Mixed
   #comments : [Schema.Types.Mixed]
@@ -42,16 +43,20 @@ TicketSchema.plugin paginator,
   direction: 1
 
 ## Validations
-TicketSchema.path('title').validate (title)->
-  return title.length
+TicketSchema.path('title').validate (val)->
+  return val.length
 , 'Title cannot be blank'
 
-TicketSchema.path('content').validate (content)->
-  return content?
+TicketSchema.path('category').validate (val)->
+  return val.length
+, 'Category cannot be blank'
+
+TicketSchema.path('content').validate (val)->
+  return val?
 , 'content cannot be blank'
 
-TicketSchema.path('owner_id').validate (owner_id)->
-  return owner_id.length
+TicketSchema.path('owner_id').validate (val)->
+  return val.length
 , 'Owner id cannot be blank'
 
 ## Pre-save hook

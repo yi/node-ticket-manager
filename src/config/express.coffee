@@ -4,6 +4,7 @@ express = require('express')
 mongoStore = require('connect-mongo')(express)
 flash = require('connect-flash')
 path = require "path"
+view_helper = require "../utils/view_helper"
 
 module.exports = (app, config, passport)->
 
@@ -77,4 +78,5 @@ module.exports = (app, config, passport)->
     app.locals
       VERSION : Date.now().toString(36)
       APP_NAME : config.app.name
+      helper : view_helper
 

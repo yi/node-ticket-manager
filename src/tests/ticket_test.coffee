@@ -43,6 +43,7 @@ describe "test", ->
       ticket = new Ticket
         title : SAMPLE_TITLE_1
         owner_id : 'test'
+        category : 'test'
         content : SAMPLE_CONTENT_1
       ticket.save (err)->
         should.not.exist err
@@ -50,6 +51,7 @@ describe "test", ->
         ticket = new Ticket
           title : SAMPLE_TITLE_2
           owner_id : 'test'
+          category : 'test'
           content : SAMPLE_CONTENT_1
         ticket.save (err)->
           should.not.exist err
@@ -59,6 +61,7 @@ describe "test", ->
       ticket = new Ticket
         title : SAMPLE_TITLE_1
         owner_id : 'test'
+        category : 'test'
         content : SAMPLE_CONTENT_1
       ticket.save (err)->
         console.log "[models_ticket_test] err:#{err}"

@@ -14,15 +14,32 @@ block pageHeader
       a Abandoned
 
 block content
-  div.well(style='text-align:left')
-      h3 check out this demo to see it in action!
-      <br>
-      h3 or deploy:
+  table.table
+    thead
+      th status
+      th id
+      th title
+      th category
+      th updated at
 
-      div(style='margin: 10px 10px;')
-        p $ git clone https://github.com/diki/nodejs-passport-boilerplate.git
-        p $ npm install
-        p create "config.js" file under config folder (see config example)
-        p $ npm start
-        p open localhost:3000 in your browser
+    each ticket in tickets
+      tr
+        td=ticket.status
+        td
+          code=ticket.id
+        td
+          a(href="/tickets/#{ticket.id}")=ticket.title
+        td=ticket.category
+        td
+          !=helper.genDateTag(ticket.updated_at)
+
+
+
+
+
+
+
+
+
+
 
