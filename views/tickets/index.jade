@@ -21,6 +21,7 @@ block content
       th title
       th category
       th updated at
+      th
 
     each ticket in tickets
       tr
@@ -33,6 +34,9 @@ block content
         td=ticket.category
         td
           !=helper.genDateTag(ticket.updated_at)
+        td
+          a(href="/tickets/#{ticket.id}")
+            i.fa.fa-chevron-right
 
 
 
