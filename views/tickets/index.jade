@@ -14,29 +14,32 @@ block pageHeader
       a Abandoned
 
 block content
-  table.table
-    thead
-      th status
-      th id
-      th title
-      th category
-      th updated at
-      th
+  .panel.panel-default
+    .panel-heading
+      .row
+        .col-md-1 status
+        .col-md-2 id
+        .col-md-5 title
+        .col-md-1 category
+        .col-md-2.text-right updated at
+        .col-md-1=" "
 
-    each ticket in tickets
-      tr
-        td
-          !=helper.genLabelByStatus(ticket.status)
-        td
-          code=ticket.id
-        td
-          a(href="/tickets/#{ticket.id}")=ticket.title
-        td=ticket.category
-        td
-          !=helper.genDateTag(ticket.updated_at)
-        td
-          a(href="/tickets/#{ticket.id}")
-            i.fa.fa-chevron-right
+    .list-group
+      each ticket in tickets
+        a.list-group-item(href="/tickets/#{ticket.id}")
+          .row
+            .col-md-1
+              !=helper.genLabelByStatus(ticket.status)
+            .col-md-2
+              small
+                code=ticket.id
+            .col-md-5=ticket.title
+            .col-md-1=ticket.category
+            .col-md-2.text-right
+              !=helper.genDateTag(ticket.updated_at)
+            .col-md-1.text-right
+              i.fa.fa-chevron-right
+
 
 
 
