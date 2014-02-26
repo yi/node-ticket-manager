@@ -13,14 +13,60 @@ npm install ticket-system
 ```javascript
 var ticket_system = require('ticket-system');
 ```
-_(Coming soon)_
+## HTTP API Calls:
 
-## Examples
-_(Coming soon)_
+### POST '/api/tickets/new', Admin create ticket
 
-## Contributing
-In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
+req.body:
+```
+{
+  title : "title of ticket",
+  owner_id : "name of owner",
+  category : "category the ticket belongs to",
+  content : {
+    detailed : "content of ticket",
+    mixed : ["data"]
+  }
+}
+```
 
+### PUT '/api/tickets/assign', Worker ask for a ticket assignment
+
+req.body:
+```
+{
+  worker : "assignment worker"
+  category : "category the ticket belongs to"
+}
+```
+
+### PUT '/api/tickets/:id/comment', Worker add comment to a ticket
+
+req.body:
+```
+{
+  name : "worker",
+  kind : "info",
+  content : "test comment"
+}
+```
+
+### PUT '/api/tickets/:id/complete', Worker complete a ticket
+
+req.body:
+```
+{
+  name : "worker"
+}
+```
+
+### PUT '/api/tickets/:id/giveup', Worker giveup a ticket
+req.body:
+```
+{
+  name : "worker"
+}
+```
 ## License
 Copyright (c) 2014 yi
 Licensed under the MIT license.
