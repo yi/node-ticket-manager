@@ -29,7 +29,7 @@
     "watch": "coffee -o ./lib/ -cw ./src/",
     "start": "./node_modules/.bin/nodemon lib/server.js",
     "distill": "distill -i ./src/server.coffee -o ./dist/maga.js",
-    "test": "mocha test"
+    "test": "./node_modules/.bin/mocha tests"
   },
   "dependencies": {
     "express": "3.4.8",
