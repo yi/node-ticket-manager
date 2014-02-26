@@ -13,7 +13,7 @@ MIN_FIELD_SELECTION =
   select : 'id'
 
 ## Schema
-TicketSchema = new Schema
+schemaStructure =
   title : String
   owner_id : String
   status : {type: String, default: STATUS.PENDING }
@@ -25,6 +25,11 @@ TicketSchema = new Schema
     content : String
     date : Date
   }]
+
+schemaOptions =
+  capped : 32768
+
+TicketSchema = new Schema(schemaStructure, schemaOptions)
 
 ## Plugins
 TicketSchema.plugin timestamps,

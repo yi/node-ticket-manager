@@ -13,7 +13,6 @@ module.exports = (app, config, passport)->
     filter: (req, res)-> return /json|text|javascript|css/.test(res.getHeader('Content-Type'))
     level: 9
   }))
-  app.use(express.favicon())
   app.use(express.static(config.root + '/public'))
 
   # don't use logger for test env
@@ -73,4 +72,9 @@ module.exports = (app, config, passport)->
     # assume 404 since no middleware responded
     app.use (req, res, next)->
       res.status(404).render('404', { url: req.originalUrl, error: 'Not found' })
+
+    # 向每个view render 注入本地数据
+    app.locals
+      VERSION : Date.now().toString(36)
+      APP_NAME : config.app.name
 

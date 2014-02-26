@@ -11,5 +11,10 @@ module.exports = (app, passport, auth)->
   #app.get '/users/:userId', users.show
 
   # this is home page
-  home = require "../controllers/home"
-  app.get '/', home.index
+  controller = require "../controllers/ticket"
+  app.get '/', controller.list
+
+
+
+
+
