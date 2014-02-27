@@ -26,6 +26,7 @@ mongoose.set('debug', true) if env is 'development'
 
 # Bootstrap models
 require "./models/ticket"
+require "./models/worker"
 
 # bootstrap passport config
 #require('./config/passport')(passport, config)

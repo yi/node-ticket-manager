@@ -23,6 +23,8 @@ module.exports = (app, passport, auth)->
   app.put '/api/tickets/:id/giveup', controller.giveup
 
 
-
+  controller = require "../controllers/worker"
+  app.get '/workers', controller.index
+  app.post '/workers/new', controller.create
 
 
