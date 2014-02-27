@@ -41,6 +41,7 @@
     "mongoose-times": "0.1.0",
     "mongoose-paginator": "0.1.2",
     "udid": "0.1.4",
+    "oauth-sign": ">=0.4.0",
     "async": "0.2.10",
     "request": ">=2.27.0"
   },
