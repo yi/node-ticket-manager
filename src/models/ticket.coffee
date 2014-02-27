@@ -71,7 +71,7 @@ TicketSchema.pre 'save', (next)->
     $and : [
       {title : @title}
       {status :
-        $ne : [STATUS.COMPLETE, STATUS.ABANDON]
+        $not : new RegExp("(#{STATUS.COMPLETE}|#{STATUS.ABANDON})")
       }
     ]
 

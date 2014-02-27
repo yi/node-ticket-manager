@@ -4,4 +4,4 @@ node_js:
 services:
   - mongodb
 before_script:
-  - node lib/server.js
+  - node lib/server.js > /dev/null 2>&1 &

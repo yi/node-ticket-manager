@@ -22,6 +22,8 @@ mongoose = require('mongoose')
 # Bootstrap db connection
 mongoose.connect(config.db)
 
+mongoose.set('debug', true) if env is 'development'
+
 # Bootstrap models
 require "./models/ticket"
 

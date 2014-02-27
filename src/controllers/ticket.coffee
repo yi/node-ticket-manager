@@ -1,12 +1,13 @@
 
 mongoose = require('mongoose')
 Ticket = mongoose.model('Ticket')
+STATUS = require "../enums/ticket_status"
 
 # list tickets
 # GET /
 # GET /tickets
 exports.index = (req, res, next)->
-  Ticket.find {}, (err, tickets)->
+  Ticket.find().sort({created_at:'desc'}).exec (err, tickets)->
     return next err if err?
     res.render 'tickets/index',
       title: 'All Tickets'
@@ -45,8 +46,11 @@ exports.assign = (req, res, next)->
 
 # PUT /api/tickets/:id/comment
 exports.comment = (req, res, next)->
-  id = String(req.params.id || '')
+  id = req.params.id || ''
   return next() unless id?
+
+  console.log "[ticket::comment] id:#{id}"
+  console.dir req.params
 
   Ticket.addComment id, req.body, (err, ticket)->
     return next(err) if err?

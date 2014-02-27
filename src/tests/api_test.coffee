@@ -10,6 +10,8 @@ HOST = "http://localhost:3456"
 
 TIMESTAMP = Date.now()
 
+TICKET_HELD_BY_WORKER = null
+
 ## Test cases
 describe "test api", ->
 
@@ -77,25 +79,81 @@ describe "test api", ->
           worker : "test worker"
           category : "test api"
 
-      request options, (err, res, body)->
-        console.log "[api_test] \n\t\terr:%j \n\t\tres:%j \n\t\tbody:%j", err, res.statusCode, body
+      request options, (err, res, ticket)->
+        console.log "[api_test] \n\t\terr:%j \n\t\tres:%j \n\t\tbody:%j", err, res.statusCode, ticket
 
         should.not.exist err
         should.exist res
         res.statusCode.should.eql 200
+        TICKET_HELD_BY_WORKER = ticket
         done()
 
-    # here: TODO: hold the ticket in memory, comment it and compelte it
+  describe '/api/tickets/:id/comment', ->
+    it "add comment to ticket", (done)->
+
+      options =
+        method: 'PUT'
+        url: "#{HOST}/api/tickets/#{TICKET_HELD_BY_WORKER._id}/comment"
+        json :
+          name : "worker",
+          kind : "info",
+          content : "test info comment"
+
+      request options, (err, res, ticket)->
+        console.log "[api_test] \n\t\terr:%j \n\t\tres:%j \n\t\tbody:%j", err, res.statusCode, ticket
+        should.not.exist err
+        res.statusCode.should.eql 200
+
+        options.json.kind = "warning"
+        options.json.content = "test warning comment"
+        request options, (err, res, ticket)->
+          console.log "[api_test] \n\t\terr:%j \n\t\tres:%j \n\t\tbody:%j", err, res.statusCode, ticket
+          should.not.exist err
+          res.statusCode.should.eql 200
+          done()
 
 
+  describe '/api/tickets/:id/complete', ->
+    it "complete a task", (done)->
+      options =
+        method: 'PUT'
+        url: "#{HOST}/api/tickets/#{TICKET_HELD_BY_WORKER._id}/complete"
+        json :
+          name : "worker",
+
+      request options, (err, res, ticket)->
+        should.not.exist err
+        res.statusCode.should.eql 200
+        done()
 
 
+  describe '/api/tickets/:id/giveup', ->
+    it "giveup a task", (done)->
+      options =
+        method: 'POST'
+        url: "#{HOST}/api/tickets/new"
+        json :
+          title :  "title of ticket #{TIMESTAMP} - 2"
+          owner_id :  "admin"
+          category : "test api"
+          content :
+            detailed : "content of ticket",
+            mixed : ["data"]
 
+      request options, (err, res, ticket)->
+        should.not.exist err
+        res.statusCode.should.eql 200
 
+        options =
+          method: 'PUT'
+          url: "#{HOST}/api/tickets/#{ticket._id}/giveup"
+          json :
+            name : "worker",
 
-
-
-
+        request options, (err, res, ticket)->
+          should.not.exist err
+          res.statusCode.should.eql 200
+          done()
 
 
 
