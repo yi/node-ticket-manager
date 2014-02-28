@@ -2,3 +2,4 @@
 *.swp
 config/deploy/*.rb
 build/
+npm-debug.log
