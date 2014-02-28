@@ -38,6 +38,7 @@ exports.create = (req, res, next)->
 
 # PUT /api/tickets/assign
 exports.assign = (req, res, next)->
+  req.body.worker = req.worker.name
   Ticket.arrangeAssignment req.body, (err, ticket) ->
     return next(err) if err?
     return next() unless ticket?

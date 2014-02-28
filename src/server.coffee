@@ -13,8 +13,10 @@ path = require "path"
 _ = require "underscore"
 debuglog = require("debug")("ticketman:server")
 
+pkg = require "../package"
+
 # config cli
-p.version('0.0.1')
+p.version(pkg.version)
   .option('-c, --config [VALUE]', 'path to config file')
   .option('-p, --port [VALUE]', 'port to run this web service')
   .option('-e, --environment  [VALUE]', 'application environment mode')

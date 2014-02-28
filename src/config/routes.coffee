@@ -1,3 +1,4 @@
+m = require "../middleware"
 
 module.exports = (app, passport, auth)->
 
@@ -16,11 +17,12 @@ module.exports = (app, passport, auth)->
   app.get '/tickets', controller.index
   app.get '/tickets/:id', controller.show
 
-  app.put '/api/tickets/assign', controller.assign
   app.post '/api/tickets/new', controller.create
-  app.put '/api/tickets/:id/comment', controller.comment
-  app.put '/api/tickets/:id/complete', controller.complete
-  app.put '/api/tickets/:id/giveup', controller.giveup
+
+  app.put '/api/tickets/assign', m.authWorker, controller.assign
+  app.put '/api/tickets/:id/comment', m.authWorker, controller.comment
+  app.put '/api/tickets/:id/complete', m.authWorker, controller.complete
+  app.put '/api/tickets/:id/giveup', m.authWorker,  controller.giveup
 
 
   controller = require "../controllers/worker"
