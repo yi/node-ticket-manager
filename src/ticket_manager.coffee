@@ -1,4 +1,5 @@
 
+assert = require "assert"
 
 env = process.env.NODE_ENV || 'development'
 DEFAULT_BASIC_AUTH = require('./config/config')[env]['basicAuth']
@@ -10,7 +11,11 @@ PATH = "/api/tickets/new"
 class TicketManager
 
   constructor: (@name, @host, basicAuth) ->
+    assert @name, "missing name"
+    assert @host, "missing host"
+
     @basicAuth = basicAuth || DEFAULT_BASIC_AUTH
+    @debuglog = require("debug")("ticketman:TicketManager##{name}")
 
   # issue a new ticket
   issue : (title, category, content, callback)->

@@ -18,6 +18,11 @@ exports.create = (req, res, next)->
   ticket = new Worker(req.body)
   ticket.save (err)=>
     return next err if err?
-    return res.redirect "/workers"
+
+    switch req.params.format
+      when 'json' then res.json ticket
+      else res.redirect "/workers"
+
+    return
   return
 

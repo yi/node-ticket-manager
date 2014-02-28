@@ -24,7 +24,7 @@ module.exports = (app, passport, auth)->
 
 
   controller = require "../controllers/worker"
-  app.get '/workers', controller.index
-  app.post '/workers/new', controller.create
+  app.get '/workers.:format?', controller.index
+  app.post '/workers/new.:format?', controller.create
 
 
