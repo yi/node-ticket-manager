@@ -15,6 +15,7 @@ _ = require "underscore"
 # config cli
 p.version('0.0.1')
   .option('-c, --config [VALUE]', 'path to config file')
+  .parse(process.argv)
 
 # Main application entry file.
 # Please note that the order of loading is important.
@@ -31,10 +32,14 @@ console.log "[server] config.root:#{config.root}"
 # load and mixin external configurations
 if p.config
   try
-    externalConfig = JSON.parse(fs.readFileSync(path.resolve(config.rootPath, p.config)))
+    pathToExternalConfig = path.resolve(config.rootPath, p.config)
+    console.log "[server] pathToExternalConfig:#{pathToExternalConfig}"
+    externalConfig = JSON.parse(fs.readFileSync(pathToExternalConfig))
     console.log "[server] externalConfig:%j", externalConfig
     _.extend config, externalConfig
-  catch e
+  catch err
+    console.log "ERROR [server] fail to mixin externalConfig. #{err}"
+
 
 mongoose = require('mongoose')
 
