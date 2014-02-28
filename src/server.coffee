@@ -8,6 +8,7 @@
 
 express = require('express')
 fs = require('fs')
+p = require "commander"
 
 # Main application entry file.
 # Please note that the order of loading is important.
@@ -28,22 +29,19 @@ mongoose.set('debug', true) if env is 'development'
 require "./models/ticket"
 require "./models/worker"
 
-# bootstrap passport config
-#require('./config/passport')(passport, config)
 
 app = express()
-# express settings
-#require('./config/express')(app, config, passport)
+
+# 启动 express web 框架
 require('./config/express')(app, config)
 
-# Bootstrap routes
-#require('./config/routes')(app, passport, auth)
+# 启动路由器
 require('./config/routes')(app)
 
 # Start the app by listening on <port>
 port = process.env.PORT || 3456
 app.listen(port)
-console.log "Ticket System app started on port #{port}"
+console.log "Ticketman app started on port #{port}"
 
 # expose app
 exports = module.exports = app

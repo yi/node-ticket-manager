@@ -19,6 +19,8 @@ module.exports = (app, config, passport)->
   # don't use logger for test env
   app.use(express.logger('dev')) if (process.env.NODE_ENV isnt 'test')
 
+  app.use(express.basicAuth(config.basicAuth.username, config.basicAuth.password))
+
   # set views path, template engine and default layout
   pathToView = path.join config.root, '/views'
   console.log "[express::main] pathToView:#{pathToView}"

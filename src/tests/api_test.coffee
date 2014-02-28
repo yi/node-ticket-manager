@@ -5,6 +5,7 @@
 ## Module dependencies
 should = require "should"
 request = require "request"
+config = require("../config/config")['development']
 
 HOST = "http://localhost:3456"
 
@@ -27,6 +28,7 @@ describe "test api", ->
       options =
         method: 'POST'
         url: "#{HOST}#{path}"
+        auth : config.basicAuth
         json :
           title : title
           owner_id : owner
@@ -52,6 +54,7 @@ describe "test api", ->
       owner = "admin"
       options =
         method: 'POST'
+        auth : config.basicAuth
         url: "#{HOST}#{path}"
         json :
           title : title
@@ -74,6 +77,7 @@ describe "test api", ->
     it "assign ticket to worker", (done)->
       options =
         method: 'PUT'
+        auth : config.basicAuth
         url: "#{HOST}#{path}"
         json :
           worker : "test worker"
@@ -93,6 +97,7 @@ describe "test api", ->
 
       options =
         method: 'PUT'
+        auth : config.basicAuth
         url: "#{HOST}/api/tickets/#{TICKET_HELD_BY_WORKER._id}/comment"
         json :
           name : "worker",
@@ -117,6 +122,7 @@ describe "test api", ->
     it "complete a task", (done)->
       options =
         method: 'PUT'
+        auth : config.basicAuth
         url: "#{HOST}/api/tickets/#{TICKET_HELD_BY_WORKER._id}/complete"
         json :
           name : "worker",
@@ -131,6 +137,7 @@ describe "test api", ->
     it "giveup a task", (done)->
       options =
         method: 'POST'
+        auth : config.basicAuth
         url: "#{HOST}/api/tickets/new"
         json :
           title :  "title of ticket #{TIMESTAMP} - 2"
@@ -147,6 +154,7 @@ describe "test api", ->
         options =
           method: 'PUT'
           url: "#{HOST}/api/tickets/#{ticket._id}/giveup"
+          auth : config.basicAuth
           json :
             name : "worker",
 
