@@ -27,9 +27,9 @@
   },
   "scripts": {
     "watch": "coffee -o ./lib/ -cw ./src/",
-    "start": "./node_modules/.bin/nodemon lib/server.js",
+    "start": "DEBUG=ticketman* ./node_modules/.bin/nodemon lib/server.js",
     "distill": "distill -i ./src/server.coffee -o ./dist/maga.js",
-    "test": "./node_modules/.bin/mocha tests"
+    "test": "DEBUG=ticketman* ./node_modules/.bin/mocha tests"
   },
   "dependencies": {
     "express": "3.4.8",
@@ -42,6 +42,7 @@
     "mongoose-paginator": "0.1.2",
     "commander": ">=1.0.1",
     "udid": "0.1.4",
+    "debug": "latest",
     "oauth-sign": ">=0.4.0",
     "async": "0.2.10",
     "request": ">=2.27.0"

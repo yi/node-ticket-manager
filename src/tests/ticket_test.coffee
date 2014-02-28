@@ -5,6 +5,7 @@
 ## Module dependencies
 should = require "should"
 _ = require "underscore"
+debuglog = require("debug")("ticketman:test:ticket_test")
 
 STATUS = require "../enums/ticket_status"
 
@@ -64,14 +65,14 @@ describe "test", ->
         category : 'test'
         content : SAMPLE_CONTENT_1
       ticket.save (err)->
-        console.log "[models_ticket_test] err:#{err}"
+        debuglog "[models_ticket_test] err:#{err}"
         should.exist err
         done()
 
     it "should able to complete ticket", (done)->
       Ticket.changeStatus {title:SAMPLE_TITLE_1}, STATUS.COMPLETE, (err, ticket)->
       #Ticket.findOneAndUpdate {title:SAMPLE_TITLE_1}, {status: STATUS.COMPLETE}, (err, ticket)->
-        console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+        debuglog "[models_ticket_test] err:#{err}, ticket:%j", ticket
         should.not.exist err
         should.exist ticket
         ticket.status.should.eql(STATUS.COMPLETE)
@@ -80,13 +81,13 @@ describe "test", ->
     it "should not abandon a completed ticket", (done)->
       Ticket.changeStatus {title:SAMPLE_TITLE_1}, STATUS.ABANDON, (err, ticket)->
       #Ticket.findOneAndUpdate {title:SAMPLE_TITLE_1}, {status: STATUS.COMPLETE}, (err, ticket)->
-        console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+        debuglog "[models_ticket_test] err:#{err}, ticket:%j", ticket
         should.not.exist ticket
         done()
 
     it "should able to process a pending ticket", (done)->
       Ticket.changeStatus {title:SAMPLE_TITLE_2}, STATUS.PROCESSING, (err, ticket)->
-        console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+        debuglog "[models_ticket_test] err:#{err}, ticket:%j", ticket
         should.not.exist err
         should.exist ticket
         ticket.status.should.eql(STATUS.PROCESSING)
@@ -95,7 +96,7 @@ describe "test", ->
 
     it "should able to add comment to a ticket", (done)->
       Ticket.findOne {title:SAMPLE_TITLE_2}, (err, ticket)->
-        console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+        debuglog "[models_ticket_test] err:#{err}, ticket:%j", ticket
         should.not.exist err
         should.exist ticket
         comment =
@@ -103,7 +104,7 @@ describe "test", ->
           kind : "info"
           content : "test comment"
         Ticket.addComment ticket.id, comment, (err, ticket)->
-          console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+          debuglog "[models_ticket_test] err:#{err}, ticket:%j", ticket
           should.not.exist err
           should.exist ticket
           _.last(ticket.comments).content.should.eql(comment.content)
@@ -116,7 +117,7 @@ describe "test", ->
         category : "assignment"
 
       Ticket.arrangeAssignment workerOptions, (err, ticket)->
-        console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+        debuglog "[models_ticket_test] err:#{err}, ticket:%j", ticket
         should.not.exist err
         should.not.exist ticket
         done()
@@ -129,7 +130,7 @@ describe "test", ->
         category : 'assignment'
         content : "for assignment 01"
       ticket.save (err, ticket)->
-        console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+        debuglog "[models_ticket_test] err:#{err}, ticket:%j", ticket
         should.not.exist err
 
         ticket = new Ticket
@@ -138,7 +139,7 @@ describe "test", ->
           category : 'assignment'
           content : "for assignment 02"
         ticket.save (err, ticket)->
-          console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+          debuglog "[models_ticket_test] err:#{err}, ticket:%j", ticket
           should.not.exist err
 
           ticket = new Ticket
@@ -147,13 +148,13 @@ describe "test", ->
             category : 'assignment'
             content : "for assignment 03"
           ticket.save (err, ticket)->
-            console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+            debuglog "[models_ticket_test] err:#{err}, ticket:%j", ticket
             should.not.exist err
             workerOptions =
               worker : "assignment worker"
               category : "assignment"
             Ticket.arrangeAssignment workerOptions, (err, ticket)->
-              console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+              debuglog "[models_ticket_test] err:#{err}, ticket:%j", ticket
               should.not.exist err
               should.exist ticket
               ticket.status.should.eql STATUS.PROCESSING
@@ -168,7 +169,7 @@ describe "test", ->
         category : "assignment"
 
       Ticket.arrangeAssignment workerOptions, (err, ticket)->
-        console.log "[models_ticket_test] err:#{err}, ticket:%j", ticket
+        debuglog "[models_ticket_test] err:#{err}, ticket:%j", ticket
         should.not.exist err
         should.exist ticket
         ticket.title.should.eql "for assignment 02"

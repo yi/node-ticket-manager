@@ -1,7 +1,7 @@
 
 class TicketManager
 
-  constructor: (@serviceHost, @name) ->
+  constructor: (@id, @secret) ->
 
   issue : ()->
 
