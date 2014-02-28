@@ -14,9 +14,10 @@ block content
   .panel.panel-default
     .panel-heading
       .row
+        .col-md-1 name
         .col-md-2 id/key
         .col-md-3 secret
-        .col-md-4 desc
+        .col-md-3 desc
         .col-md-1.text-right created
         .col-md-1.text-right updated
 
@@ -24,12 +25,15 @@ block content
       each worker in workers
         li.list-group-item
           .row
+            .col-md-1
+              small=worker.name
             .col-md-2
-              =worker.id
+              small
+                code=worker.id
             .col-md-3
               small
                 code.text-muted=worker.consumer_secret
-            .col-md-4=worker.desc
+            .col-md-3=worker.desc
             .col-md-1.text-right
               !=helper.genDateTag(worker.created_at)
             .col-md-1.text-right

@@ -17,6 +17,10 @@ schemaStructure =
 genUUID = (a)->
   return if a then (0|Math.random()*16).toString(16) else (""+1e7+-1e3+-4e3+-8e3+-1e11).replace(/1|0/g,genUUID)
 
+MAX_LENGTH_OF_NAME = 50
+
+MAX_LENGTH_OF_DESC = 200
+
 WorkerSchema = new Schema(schemaStructure)
 
 ## Plugins
@@ -39,6 +43,9 @@ WorkerSchema.path('desc').validate (val)->
 WorkerSchema.pre 'save', (next)->
   #console.log "[ticket::pre save] isNew:#{@isNew}"
   return next() unless @isNew
+
+  @name = @name.trim().replace(/\s/g, '').toLowerCase().substr(0,MAX_LENGTH_OF_NAME)
+  @desc = @desc.trim().substr(0, MAX_LENGTH_OF_DESC)
 
   mongoose.model('Worker').findOne {name : @name}, (err, worker)=>
     #console.log "[ticket::pre save] err:#{err}, ticket:%j", ticket
