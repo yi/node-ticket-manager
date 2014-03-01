@@ -30,6 +30,11 @@ describe "test ticket_manager", ->
         ticket.title.should.eql title
         ticket.category.should.eql category
         should.exist ticket.id
-        done()
+
+        ticketManager.issue title, category, content, (err, ticket)->
+          debuglog "err:#{err}, ticket:%j",  ticket
+          should.exist err
+          should.not.exist ticket
+          done()
 
 

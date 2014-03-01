@@ -8,6 +8,8 @@ should = require "should"
 request = require "request"
 
 TicketWorker = require "../ticket_worker"
+TicketManager = require "../ticket_manager"
+
 debuglog = require("debug")("ticketman:test:ticket_worker_test")
 assert = require "assert"
 
@@ -19,6 +21,7 @@ ticketWorker  = null
 
 setTicketWorker = (val)-> ticketWorker = val
 
+ticketManager = new TicketManager("test ticket_manager", "http://localhost:3456")
 
 HOST = "http://localhost:3456"
 ## Test cases
@@ -50,11 +53,29 @@ describe "test ticket_worker", ->
 
   describe "ticket_worker", ->
 
-    it "requireTicket", (done)->
-      console.log "[ticket_worker_test::method] 2 ticketWorker:%j", ticketWorker
+    it "requireTicket when no pending ticket", (done)->
       ticketWorker.requireTicket (err, ticket)->
         should.not.exist err
         should.not.exist ticket
         done()
 
+
+    it "requireTicket when pending ticket available", (done)->
+      ticketManager.issue "test ticket@#{Date.now()}", "sample", {content:"not null"}, (err, originTicket)->
+        debuglog "err:#{err}, originTicket:%j", originTicket
+
+        should.not.exist err
+        should.exist originTicket
+
+        ticketWorker.on "new ticket", (ticket)->
+          debuglog "on new ticket: ticket:%j", ticket
+          should.exist ticket
+          ticket.title.should.eql originTicket.title
+          done()
+
+        ticketWorker.requireTicket (err, ticket)->
+          debuglog "requireTicket: ticket:%j", ticket
+          should.not.exist err
+          should.exist ticket
+          ticket.title.should.eql originTicket.title
 

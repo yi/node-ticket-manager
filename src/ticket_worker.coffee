@@ -99,9 +99,9 @@ class TicketWorker extends EventEmitter
         return
 
       ticket.id = ticket._id if ticket._id
+      callback(err, ticket) if callback?
       @ticket = ticket
       @emit "new ticket", ticket
-      callback(err, ticket) if callback?
       return
     return
 

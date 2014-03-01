@@ -32,8 +32,14 @@ exports.show = (req, res, next)->
 exports.create = (req, res, next)->
   ticket = new Ticket(req.body)
   ticket.save (err)=>
-    return next err if err?
-    return res.json ticket
+    if err?
+      return res.json
+        success : false
+        error : err.toString()
+    else
+      return res.json
+        success : true
+        ticket : ticket
   return
 
 # PUT /api/tickets/assign

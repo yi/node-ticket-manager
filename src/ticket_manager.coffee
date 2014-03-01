@@ -1,6 +1,7 @@
 
 assert = require "assert"
 
+debuglog = require("debug")("ticketman:TicketManager")
 env = process.env.NODE_ENV || 'development'
 DEFAULT_BASIC_AUTH = require('./config/config')[env]['basicAuth']
 
@@ -15,7 +16,6 @@ class TicketManager
     assert @host, "missing host"
 
     @basicAuth = basicAuth || DEFAULT_BASIC_AUTH
-    @debuglog = require("debug")("ticketman:TicketManager##{name}")
 
   # issue a new ticket
   issue : (title, category, content, callback)->
@@ -30,12 +30,15 @@ class TicketManager
         content : content
 
     request options, (err, res, body)->
+      debuglog "err:#{err}, res.statusCode:#{res.statusCode}, body:%j", body
       return callback err if err?
       unless res.statusCode is 200
-        return callback(new Error("fail to issue ticket:#{title}##{category}. server reponse:#{res.statusCode}"))
-      body.id = body._id if body._id?
-      callback null, body
-      return
+        return callback(new Error("Network error, res.statusCode:#{res.statusCode}"))
+      unless body? and body.success and body.ticket
+        return callback(new Error("Fail to create ticket:#{title}##{category}, due to #{body.error || "unknown error" + JSON.stringify(body)}"))
+
+      body.ticket.id = body.ticket._id if body.ticket._id?
+      return callback null, body.ticket
 
 
 module.exports=TicketManager
