@@ -8,7 +8,7 @@ makeSignatureHeader = (consumerId, httpMethod, base_uri, params, consumerSecret)
 
 
 exports.verify = (signature, httpMethod, base_uri, params, consumerSecret) ->
-  console.log "[oauth::verify] signature:#{signature}"
+  #console.log "[oauth::verify] signature:#{signature}"
   signature is signer.hmacsign(httpMethod, base_uri, params, consumerSecret)
 
 

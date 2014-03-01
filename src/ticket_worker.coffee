@@ -70,7 +70,9 @@ class TicketWorker extends EventEmitter
   # require a new ticket from server
   requireTicket : (callback)->
     debuglog "requireTicket"
-    return if @isBusy()
+    if @isBusy()
+      callback() if callback?
+      return
 
     body = category : "test api"
 
@@ -84,11 +86,17 @@ class TicketWorker extends EventEmitter
     request options, (err, res, ticket)->
       debuglog "requireTicket: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
       if err?
-        return debuglog "requireTicket: err: #{err}"
+        debuglog "requireTicket: err: #{err}"
+        callback(err) if callback?
+        return
+      if res.statusCode is 404
+        debuglog "requireTicket: no pending ticket"
+        callback() if callback?
+        return
       unless res.statusCode is 200
-        return debuglog "requireTicket: request failed, server status: #{res.statusCode}"
-      unless ticket?
-        return debuglog "requireTicket: no more ticket"
+        debuglog "requireTicket: request failed, server status: #{res.statusCode}"
+        callback(new Error "request failed, server status: #{res.statusCode}")
+        return
 
       ticket.id = ticket._id if ticket._id
       @ticket = ticket

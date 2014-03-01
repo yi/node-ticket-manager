@@ -54,6 +54,7 @@ describe "test ticket_worker", ->
       console.log "[ticket_worker_test::method] 2 ticketWorker:%j", ticketWorker
       ticketWorker.requireTicket (err, ticket)->
         should.not.exist err
+        should.not.exist ticket
         done()
 
 
