@@ -69,11 +69,8 @@ describe "test ticket_worker", ->
 
       ticketWorker.on "new ticket", (ticket)->
         debuglog "ticketWorker.on 'new ticket', ticket:%j", ticket
+        should.exist ticket
         ticketWorker.isBusy().should.be.ok
-
-      ticketWorker.on "timeout", (ticket)->
-        debuglog "ticketWorker.on 'timeout', ticket:%j", ticket
-        ticketWorker.isBusy().should.not.be.ok
 
       # ticket should be idle by default
       ticketWorker.isBusy().should.not.be.ok

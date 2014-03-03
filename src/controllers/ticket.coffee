@@ -3,10 +3,13 @@ mongoose = require('mongoose')
 Ticket = mongoose.model('Ticket')
 STATUS = require "../enums/ticket_status"
 
+debuglog = require("debug")("ticketman:controller:ticket")
+
 # list tickets
 # GET /
 # GET /tickets
 exports.index = (req, res, next)->
+  debuglog "index"
   Ticket.find().sort({created_at:'desc'}).exec (err, tickets)->
     return next err if err?
     res.render 'tickets/index',
@@ -17,6 +20,7 @@ exports.index = (req, res, next)->
 
 # GET /tickets/:id
 exports.show = (req, res, next)->
+  debuglog "show"
   id = String(req.params.id || '')
   return next() unless id?
   Ticket.findById id, (err, ticket)->
@@ -30,6 +34,7 @@ exports.show = (req, res, next)->
 
 # POST /api/tickets/new
 exports.create = (req, res, next)->
+  debuglog "create"
   ticket = new Ticket(req.body)
   ticket.save (err)=>
     if err?
@@ -44,6 +49,7 @@ exports.create = (req, res, next)->
 
 # PUT /api/tickets/assign
 exports.assign = (req, res, next)->
+  debuglog "assign, req.worker:%j", req.worker
   req.body.worker = req.worker.name
   Ticket.arrangeAssignment req.body, (err, ticket) ->
     return next(err) if err?

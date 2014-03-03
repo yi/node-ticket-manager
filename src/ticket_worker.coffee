@@ -47,6 +47,7 @@ class TicketWorker extends EventEmitter
       consumer_key: @id
       consumer_secret: @consumerSecret
 
+    @_isBusy = false
     @timeout = options.timeout || DEFAULT_TIMEOUT
     @interval = options.interval || DEFAULT_WATCH_INTERVAL
     @basicAuth = options.basicAuth || DEFAULT_BASIC_AUTH
@@ -56,22 +57,31 @@ class TicketWorker extends EventEmitter
     @ticket = null
     @commenceAt = 0
 
-    setInterval (()=>@watch()), @timeout
+    debuglog "constructor, @name:#{@name}, @watchCategory:#{@watchCategory}, @timeout:#{@timeout}, @interval:#{@interval}"
+    setInterval (()=>@watch()), @interval
 
-  isBusy : -> @ticket?
+  isBusy : -> @_isBusy
 
   watch : ->
-    debuglog "watch: isBusy:#{@isBusy}"
+    debuglog "watch: isBusy:#{@isBusy()}"
     if @isBusy()
       @doTimeout() if Date.now() > @timeout +  @commenceAt
     else
       @requireTicket()
     return
 
+  setBusy : (val)->
+    @_isBusy = Boolean(val)
+    @commenceAt = Date.now() if @_isBusy
+
   # require a new ticket from server
   requireTicket : (callback)->
     debuglog "requireTicket"
     return if @isBusy()
+
+    @setBusy(true) # mark  i'm busy
+
+    body = category : @watchCategory
 
     options =
       method: 'PUT'
@@ -80,18 +90,21 @@ class TicketWorker extends EventEmitter
       headers : oauth.makeSignatureHeader(@id, 'PUT', PATH_FOR_REQUIRE_TICKET, body, @consumerSecret)
       json : body
 
-    request options, (err, res, ticket)->
+    request options, (err, res, ticket)=>
       debuglog "requireTicket: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
       if err?
         return debuglog "requireTicket: err: #{err}"
       unless res.statusCode is 200
         return debuglog "requireTicket: request failed, server status: #{res.statusCode}"
       unless ticket?
+        @setBusy(false)
         return debuglog "requireTicket: no more ticket"
 
       ticket.id = ticket._id if ticket._id
       callback(err, ticket) if callback?
       @ticket = ticket
+      console.log "[ticket_worker::=======] isBusy:#{@isBusy()}"
+
       @emit "new ticket", ticket
       return
     return
@@ -102,6 +115,7 @@ class TicketWorker extends EventEmitter
     _ticket = @ticket
     @ticket = null
     @emit "timeout", _ticket
+    @setBusy(false)
     return
 
   # complete ticket
@@ -117,12 +131,15 @@ class TicketWorker extends EventEmitter
       debuglog "complete: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
       return
 
+    _ticket = @ticket
     @ticket = null
+    @emit "complete", _ticket
+    @setBusy(false)
     return
 
   # send comment on to current ticket
   update : (message, kind='default')->
-    return debuglog "update: ERROR: current has no ticket. message:#{message}" unless isBusy()
+    return debuglog "update: ERROR: current has no ticket. message:#{message}" unless @ticket?
 
     options =
       method: 'PUT'
@@ -154,6 +171,7 @@ class TicketWorker extends EventEmitter
       return
 
     @ticket = null
+    @setBusy(false)
     return
 
 module.exports=TicketWorker

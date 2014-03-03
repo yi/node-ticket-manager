@@ -171,7 +171,7 @@ TicketSchema.statics.list = (status, after, callback)->
 TicketSchema.statics.arrangeAssignment = (options, callback)->
 
   options or= EMPTY_OBJ
-  worker = String(options.worker || "")
+  worker = String(options.worker || options.name || "")
   category = String(options.category || "")
 
   return callback(new Error("missing request params, worker:#{worker}, category:#{category}")) unless worker and category
