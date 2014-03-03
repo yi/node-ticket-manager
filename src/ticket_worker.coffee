@@ -4,6 +4,8 @@ assert = require "assert"
 env = process.env.NODE_ENV || 'development'
 DEFAULT_BASIC_AUTH = require('./config/config')[env]['basicAuth']
 
+debuglog = require("debug")("ticketman:TicketWorker#")
+
 {EventEmitter} = require('events')
 request = require "request"
 
@@ -45,19 +47,17 @@ class TicketWorker extends EventEmitter
     @interval = options.interval || DEFAULT_WATCH_INTERVAL
     @basicAuth = options.basicAuth || DEFAULT_BASIC_AUTH
 
+    if @timeout < @interval * 3 then @timeout = @interval * 3
 
     @ticket = null
-
-    @debuglog = require("debug")("ticketman:TicketWorker#{@name}")
-
     @commenceAt = 0
 
-    setInterval @watch, @timeout
+    setInterval (()=>@watch()), @timeout
 
   isBusy : -> @ticket?
 
   watch : ->
-    @debuglog "watch: isBusy:#{@isBusy}"
+    debuglog "watch: isBusy:#{@isBusy}"
     if @isBusy()
       @doTimeout() if Date.now() > @timeout +  @commenceAt
     else
@@ -66,7 +66,7 @@ class TicketWorker extends EventEmitter
 
   # require a new ticket from server
   requireTicket : (callback)->
-    @debuglog "requireTicket"
+    debuglog "requireTicket"
     return if @isBusy()
     options =
       method: 'PUT'
@@ -77,13 +77,13 @@ class TicketWorker extends EventEmitter
         category : "test api"
 
     request options, (err, res, ticket)->
-      @debuglog "requireTicket: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
+      debuglog "requireTicket: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
       if err?
-        return @debuglog "requireTicket: err: #{err}"
+        return debuglog "requireTicket: err: #{err}"
       unless res.statusCode is 200
-        return @debuglog "requireTicket: request failed, server status: #{res.statusCode}"
+        return debuglog "requireTicket: request failed, server status: #{res.statusCode}"
       unless ticket?
-        return @debuglog "requireTicket: no more ticket"
+        return debuglog "requireTicket: no more ticket"
 
       ticket.id = ticket._id if ticket._id
       @ticket = ticket
@@ -94,9 +94,10 @@ class TicketWorker extends EventEmitter
 
   # when timeout
   doTimeout : ->
-    @debuglog "doTimeout, @ticket:%j", @ticket
-    @emit "timeout", @ticket
+    debuglog "doTimeout, @ticket:%j", @ticket
+    _ticket = @ticket
     @ticket = null
+    @emit "timeout", _ticket
     return
 
   # complete ticket
@@ -109,7 +110,7 @@ class TicketWorker extends EventEmitter
       url: "#{HOST}/api/tickets/#{@ticket.id}/complete"
 
     request options, (err, res, ticket)->
-      @debuglog "complete: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
+      debuglog "complete: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
       return
 
     @ticket = null
@@ -117,7 +118,7 @@ class TicketWorker extends EventEmitter
 
   # send comment on to current ticket
   update : (message, kind='default')->
-    return @debuglog "update: ERROR: current has no ticket. message:#{message}" unless isBusy()
+    return debuglog "update: ERROR: current has no ticket. message:#{message}" unless isBusy()
 
     options =
       method: 'PUT'
@@ -129,7 +130,7 @@ class TicketWorker extends EventEmitter
         content : message
 
     request options, (err, res, ticket)->
-      @debuglog "update: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
+      debuglog "update: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
       return
     return
 
@@ -143,7 +144,7 @@ class TicketWorker extends EventEmitter
       url: "#{HOST}/api/tickets/#{@ticket.id}/giveup"
 
     request options, (err, res, ticket)->
-      @debuglog "giveup: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
+      debuglog "giveup: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
       return
 
     @ticket = null
