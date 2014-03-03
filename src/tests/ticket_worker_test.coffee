@@ -61,11 +61,16 @@ describe "test ticket_worker", ->
 
     @timeout 30 * 1000
 
-    it "live cycle", (done)->
+    it "live cycle for timeout", (done)->
 
       ticketWorker.on "timeout", ()->
         debuglog "ticketWorker.on 'timeout'"
+        ticketWorker.removeAllListeners()
         done()
+
+      ticketWorker.on "complete", ()->
+        debuglog "ticketWorker.on 'complete'"
+        throw new Error "this should not hasppen"
 
       ticketWorker.on "new ticket", (ticket)->
         debuglog "ticketWorker.on 'new ticket', ticket:%j", ticket
@@ -85,5 +90,30 @@ describe "test ticket_worker", ->
         debuglog "err:#{err}, ticket:%j",  ticket
         should.not.exist err
         should.exist ticket
+
+
+    it "live cycle for completion", (done)->
+
+      ticketWorker.on "complete", ()->
+        debuglog "ticketWorker.on 'complete'"
+        ticketWorker.removeAllListeners()
+        done()
+
+      ticketWorker.on "timeout", ()->
+        debuglog "ticketWorker.on 'timeout'"
+        throw new Error "this should not hasppen"
+
+      ticketWorker.on "new ticket", (ticket)->
+        debuglog "ticketWorker.on 'new ticket', ticket:%j", ticket
+        should.exist ticket
+        ticketWorker.isBusy().should.be.ok
+
+        setTimeout (()-> ticketWorker.complete()), 2000
+
+      ticketManager.issue "test ticket worker #{Date.now()}", "sample", {some:"content"}, (err, ticket)->
+        debuglog "err:#{err}, ticket:%j",  ticket
+        should.not.exist err
+        should.exist ticket
+
 
 
