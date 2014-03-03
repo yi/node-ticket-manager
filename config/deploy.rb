@@ -52,7 +52,7 @@ namespace :deploy do
 
   desc "start #{application}"
   task :start, :roles => :app, :except => { :no_release => true } do
-    run "touch #{path_to_log} && forever start -a -l #{path_to_log} --pidFile #{path_to_pid} #{path_to_main_script} -e #{mode}"
+    run "touch #{path_to_log} && DEBUG=ticketman* forever start -a -l #{path_to_log} --pidFile #{path_to_pid} #{path_to_main_script} -e #{mode}"
   end
 
   desc "stop #{application}"

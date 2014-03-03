@@ -36,7 +36,7 @@ debuglog "[server] config.root:#{config.root}"
 # load and mixin external configurations
 if p.config
   try
-    pathToExternalConfig = path.resolve(config.rootPath, p.config)
+    pathToExternalConfig = path.resolve(config.root, p.config)
     debuglog "pathToExternalConfig:#{pathToExternalConfig}"
     externalConfig = JSON.parse(fs.readFileSync(pathToExternalConfig))
     debuglog "externalConfig:%j", externalConfig
