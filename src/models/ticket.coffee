@@ -139,10 +139,11 @@ TicketSchema.statics.changeStatus = (query, status, callback)->
 # @param {Object} comment, must have keys: name, kind, content
 # @param {Function} callback, signature: callback(err, ticket)
 TicketSchema.statics.addComment = (id, comment, callback)->
-  console.log "[ticket::addComment]"
 
   unless id? and comment.name? and comment.kind? and comment.content? and callback?
     return callback(new Error("missing arrgument. id:#{id}, name:#{comment.name}, kind:#{comment.kind}, content:#{comment.content}, callback:#{callback}"))
+
+  console.log "[ticket::addComment] id:%j", id
 
   comment.date = Date.now()
 

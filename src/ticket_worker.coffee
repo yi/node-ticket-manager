@@ -75,7 +75,7 @@ class TicketWorker extends EventEmitter
     @commenceAt = Date.now() if @_isBusy
 
   # require a new ticket from server
-  requireTicket : (callback)->
+  requireTicket : ()->
     debuglog "requireTicket"
     return if @isBusy()
 
@@ -90,28 +90,35 @@ class TicketWorker extends EventEmitter
       headers : oauth.makeSignatureHeader(@id, 'PUT', PATH_FOR_REQUIRE_TICKET, body, @consumerSecret)
       json : body
 
-    request options, (err, res, ticket)=>
-      debuglog "requireTicket: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
-      if err?
-        return debuglog "requireTicket: err: #{err}"
-      unless res.statusCode is 200
-        return debuglog "requireTicket: request failed, server status: #{res.statusCode}"
-      unless ticket?
-        @setBusy(false)
-        return debuglog "requireTicket: no more ticket"
+    request options, (err, res, result)=>
+      debuglog "requireTicket: err:#{err}, res.statusCode:#{res.statusCode}, result:%j", result
 
-      ticket.id = ticket._id if ticket._id
-      callback(err, ticket) if callback?
-      @ticket = ticket
+      if err? then return debuglog "requireTicket: err: #{err}"
+
+      unless res.statusCode is 200 then return debuglog "requireTicket: request failed, server status: #{res.statusCode}"
+
+      unless result.success?
+        @setBusy(false)
+        debuglog "requireTicket: request failed, #{result.error}"
+        return
+
+      unless result.ticket?
+        @setBusy(false)
+        debuglog "requireTicket: no more ticket"
+        return
+
+      @ticket = result.ticket
+      @ticket.id = @ticket._id if @ticket._id
       console.log "[ticket_worker::=======] isBusy:#{@isBusy()}"
 
-      @emit "new ticket", ticket
+      @emit "new ticket", @ticket
       return
     return
 
   # when timeout
   doTimeout : ->
     debuglog "doTimeout, @ticket:%j", @ticket
+    @giveup()
     _ticket = @ticket
     @ticket = null
     @emit "timeout", _ticket
@@ -121,11 +128,14 @@ class TicketWorker extends EventEmitter
   # complete ticket
   complete : ()->
     return unless @isBusy()
+
+    path = "/api/tickets/#{@ticket.id}/complete"
     options =
       method: 'PUT'
       auth : @basicAuth
-      oauth : @oauth
-      url: "#{HOST}/api/tickets/#{@ticket.id}/complete"
+      headers : oauth.makeSignatureHeader(@id, 'PUT', path, {}, @consumerSecret)
+      json : {}
+      url: "#{@host}#{path}"
 
     request options, (err, res, ticket)->
       debuglog "complete: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
@@ -141,14 +151,20 @@ class TicketWorker extends EventEmitter
   update : (message, kind='default')->
     return debuglog "update: ERROR: current has no ticket. message:#{message}" unless @ticket?
 
+    body =
+      kind : kind
+      content : message
+
+    path = "/api/tickets/#{@ticket._id}/comment"
+
+    debuglog "=========== ticket:%j", @ticket
+
     options =
       method: 'PUT'
       auth : @basicAuth
-      oauth : @oauth
-      url: "#{HOST}/api/tickets/#{@ticket._id}/comment"
-      json :
-        kind : kind
-        content : message
+      headers : oauth.makeSignatureHeader(@id, 'PUT', path, body, @consumerSecret)
+      url: "#{@host}#{path}"
+      json : body
 
     request options, (err, res, ticket)->
       debuglog "update: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
@@ -160,11 +176,15 @@ class TicketWorker extends EventEmitter
     debuglog "giveup"
 
     return unless @isBusy()
+
+    path = "/api/tickets/#{@ticket.id}/giveup"
+
     options =
       method: 'PUT'
       auth : @basicAuth
-      oauth : @oauth
-      url: "#{HOST}/api/tickets/#{@ticket.id}/giveup"
+      headers : oauth.makeSignatureHeader(@id, 'PUT', path, {}, @consumerSecret)
+      url: "#{@host}#{path}"
+      json : {}
 
     request options, (err, res, ticket)->
       debuglog "giveup: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket

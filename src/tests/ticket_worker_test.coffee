@@ -72,6 +72,12 @@ describe "test ticket_worker", ->
         should.exist ticket
         ticketWorker.isBusy().should.be.ok
 
+        setTimeout (()-> ticketWorker.update("test update 1")), 1000
+        setTimeout (()-> ticketWorker.update("test update 2", "info")), 2000
+        setTimeout (()-> ticketWorker.update("test update 3", "warning")), 3000
+        setTimeout (()-> ticketWorker.update("test update 4", "danger")), 4000
+        setTimeout (()-> ticketWorker.update("test update 5", "success")), 5000
+
       # ticket should be idle by default
       ticketWorker.isBusy().should.not.be.ok
 
