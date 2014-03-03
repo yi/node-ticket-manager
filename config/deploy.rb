@@ -33,7 +33,8 @@ set :use_sudo, false
 # 终端的类型
 set :default_run_options, :pty => true
 
-set :deploy_to, '/var/app/ticketman/'
+#set :deploy_to, '/var/app/ticketman/'
+set :deploy_to, '/var/www/apps/ticketman/'
 
 set :path_to_log, "#{current_path}/log/#{application}.log"
 set :path_to_pid, "#{current_path}/#{application}.pid"
