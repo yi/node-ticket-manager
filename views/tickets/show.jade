@@ -34,6 +34,30 @@ block content
     .col-md-1.input-lg.text-muted  attempts:
     .col-md-3.input-lg=ticket.attempts
 
+
+    .col-md-10.text-right
+      button.btn.btn-default(data-toggle="modal", data-target="#myModal")
+        i.fa.fa-edit
+        !=" Add Comment"
+
+    .col-md-1.text-right
+
+      if ticket.status == "pending"
+        button.btn.btn-danger(data-toggle="modal", data-target="#myModal2")
+          i.fa.fa-trash-o
+          !=" Abandon"
+
+        //form.abandon(action="/tickets/#{ticket.id}/abandon", method="POST")
+          //button.btn.btn-danger(type='submit')
+            //i.fa.fa-trash-o
+            //!=" Abandon"
+      else
+        button.btn.btn-danger(disabled="true")
+          i.fa.fa-trash-o
+          !=" Abandon"
+
+
+
   h2
     small Content
   .well
@@ -52,6 +76,40 @@ block content
           .col-md-2
             !=helper.genDateTag(comment.date)
 
+  #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+    form.comment(action="/tickets/#{ticket.id}/comment", method="POST")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            h4#myModalLabel.modal-title Add Comment
+          .modal-body
+
+            .form-group
+              .controls
+                input.input-lg.form-control#commnent-content(type='text', name="content", placeholder='Comment')
+
+          .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') Close
+            button.btn.btn-primary(type='submit') Save changes
+
+
+  #myModal2.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel2', aria-hidden='true')
+    form.abandon(action="/tickets/#{ticket.id}/abandon", method="POST")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            h4#myModalLabel2.modal-title Abandon Ticket
+
+          .modal-body
+            h3 Are you sure to abandon this ticket?
+
+          .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') Close
+            button.btn.btn-danger(type='submit')
+              i.fa.fa-trash-o
+              !=" Abandon"
 
 
 

@@ -16,6 +16,8 @@ module.exports = (app, passport, auth)->
   app.get '/', controller.index
   app.get '/tickets', controller.index
   app.get '/tickets/:id', controller.show
+  app.post '/tickets/:id/abandon', controller.abandon
+  app.post '/tickets/:id/comment', controller.adminComment
 
   app.post '/api/tickets/new', controller.create
 

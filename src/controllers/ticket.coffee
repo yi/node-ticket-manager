@@ -120,5 +120,43 @@ exports.giveup = (req, res, next)->
   return
 
 
+# PUT  /tickets/:id/abandon
+exports.abandon = (req, res, next)->
+  id = String(req.params.id || '')
+  return next() unless id?
+
+  Ticket.findById id, (err, ticket)->
+    return next err if err?
+    return next() unless ticket?
+    return next(new Error "only pending ticket could be abandoned") unless ticket.status is STATUS.PENDING
+
+    Ticket.changeStatus {id : ticket.id}, STATUS.ABANDON, (err, ticket)->
+      return next err if err?
+      return next() unless ticket?
+      return res.redirect "/tickets"
+    return
+  return
+
+# PUT  /tickets/:id/comment
+exports.adminComment = (req, res, next)->
+  id = String(req.params.id || '')
+  return next() unless id?
+
+  req.body.content = req.body.content.trim()
+  console.log "[ticket::==========] req.body.content:#{req.body.content}"
+
+  return next(new Error "please say something") unless req.body.content
+
+  req.body.kind = "warning"
+  req.body.name = "admin"
+
+  Ticket.addComment id, req.body, (err, ticket)->
+    return next(err) if err?
+
+    return next() unless ticket?
+
+    return res.redirect "/tickets/#{id}"
+
+  return
 
 
