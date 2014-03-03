@@ -4,7 +4,7 @@
 
 ## Module dependencies
 should = require "should"
-TicketManager = require "../ticket_manager"
+{TicketManager} = require "../"
 debuglog = require("debug")("ticketman:test:ticket_manager_test")
 
 ticketManager = new TicketManager("test ticket_manager", "http://localhost:3456")

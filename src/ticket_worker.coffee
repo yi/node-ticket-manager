@@ -109,7 +109,6 @@ class TicketWorker extends EventEmitter
 
       @ticket = result.ticket
       @ticket.id = @ticket._id if @ticket._id
-      console.log "[ticket_worker::=======] isBusy:#{@isBusy()}"
 
       @emit "new ticket", @ticket
       return

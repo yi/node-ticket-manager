@@ -7,8 +7,7 @@ should = require "should"
 
 request = require "request"
 
-TicketWorker = require "../ticket_worker"
-TicketManager = require "../ticket_manager"
+{TicketWorker} = require "../"
 
 debuglog = require("debug")("ticketman:test:ticket_worker_test")
 assert = require "assert"
@@ -17,15 +16,13 @@ config = require("../config/config")['development']
 
 WORKER_RECORD = null
 
-TicketManager = require "../ticket_manager"
+{TicketManager} = require "../"
 
 ticketManager = new TicketManager("test ticket_manager", "http://localhost:3456")
 
 ticketWorker  = null
 
 setTicketWorker = (val)-> ticketWorker = val
-
-ticketManager = new TicketManager("test ticket_manager", "http://localhost:3456")
 
 HOST = "http://localhost:3456"
 ## Test cases
