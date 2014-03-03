@@ -8,6 +8,8 @@ should = require "should"
 request = require "request"
 
 TicketWorker = require "../ticket_worker"
+TicketManager = require "../ticket_manager"
+
 debuglog = require("debug")("ticketman:test:ticket_worker_test")
 assert = require "assert"
 
@@ -23,6 +25,7 @@ ticketWorker  = null
 
 setTicketWorker = (val)-> ticketWorker = val
 
+ticketManager = new TicketManager("test ticket_manager", "http://localhost:3456")
 
 HOST = "http://localhost:3456"
 ## Test cases
@@ -79,4 +82,5 @@ describe "test ticket_worker", ->
         debuglog "err:#{err}, ticket:%j",  ticket
         should.not.exist err
         should.exist ticket
+
 

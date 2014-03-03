@@ -13,9 +13,13 @@ path = require "path"
 _ = require "underscore"
 debuglog = require("debug")("ticketman:server")
 
+pkg = require "../package"
+
 # config cli
-p.version('0.0.1')
+p.version(pkg.version)
   .option('-c, --config [VALUE]', 'path to config file')
+  .option('-p, --port [VALUE]', 'port to run this web service')
+  .option('-e, --environment  [VALUE]', 'application environment mode')
   .parse(process.argv)
 
 # Main application entry file.
@@ -23,8 +27,9 @@ p.version('0.0.1')
 
 # Load configurations
 # if test env, load example file
-env = process.env.NODE_ENV || 'development'
-config = require('./config/config')[env]
+env = p.environment || process.env.NODE_ENV || 'development'
+configs = require('./config/config')
+config = configs[env]
 
 # fix root path error after distillation
 config.root = path.resolve __dirname, "../"
@@ -63,7 +68,7 @@ require('./config/express')(app, config)
 require('./config/routes')(app)
 
 # Start the app by listening on <port>
-port = process.env.PORT || 3456
+port = p.port || process.env.PORT || 3456
 app.listen(port)
 debuglog "Ticketman app started on port #{port}"
 

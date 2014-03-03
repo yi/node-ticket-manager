@@ -33,23 +33,23 @@ module.exports = (app, config, passport)->
     #app.use(helpers(config.app.name))
 
     # cookieParser should be above session
-    app.use(express.cookieParser())
+    #app.use(express.cookieParser())
 
     # bodyParser should be above methodOverride
     app.use(express.bodyParser())
     app.use(express.methodOverride())
 
     # express/mongo session storage
-    app.use(express.session({
-      secret: 'fasr_42*@3paskr$2LQRkvQ',
-      store: new mongoStore({
-        url: config.db,
-        collection : 'sessions'
-      })
-    }))
+    #app.use(express.session({
+      #secret: 'fasr_42*@3paskr$2LQRkvQ',
+      #store: new mongoStore({
+        #url: config.db,
+        #collection : 'sessions'
+      #})
+    #}))
 
     # connect flash for flash messages
-    app.use(flash())
+    #app.use(flash())
 
     # use passport session
     #app.use(passport.initialize())

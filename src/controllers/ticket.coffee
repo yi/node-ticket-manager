@@ -32,16 +32,30 @@ exports.show = (req, res, next)->
 exports.create = (req, res, next)->
   ticket = new Ticket(req.body)
   ticket.save (err)=>
-    return next err if err?
-    return res.json ticket
+    if err?
+      return res.json
+        success : false
+        error : err.toString()
+    else
+      return res.json
+        success : true
+        ticket : ticket
   return
 
 # PUT /api/tickets/assign
 exports.assign = (req, res, next)->
+  req.body.worker = req.worker.name
   Ticket.arrangeAssignment req.body, (err, ticket) ->
     return next(err) if err?
-    return next() unless ticket?
-    return res.json ticket
+
+    unless ticket?
+      return res.json
+        success : false
+        error : "no pending ticket of #{req.body.category}"
+
+    return res.json
+      success : true
+      ticket : ticket
   return
 
 # PUT /api/tickets/:id/comment
@@ -49,13 +63,20 @@ exports.comment = (req, res, next)->
   id = req.params.id || ''
   return next() unless id?
 
-  console.log "[ticket::comment] id:#{id}"
-  console.dir req.params
+  req.body.name = req.worker.name
 
   Ticket.addComment id, req.body, (err, ticket)->
     return next(err) if err?
-    return next() unless ticket?
-    return res.json ticket
+
+    unless ticket?
+      return res.json
+        success : false
+        error : "no commented ticket of #{id}"
+
+    return res.json
+      success : true
+      ticket : ticket
+
   return
 
 # PUT /api/tickets/:id/complete

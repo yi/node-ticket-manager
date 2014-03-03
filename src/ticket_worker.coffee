@@ -1,6 +1,10 @@
 
 assert = require "assert"
 
+debuglog = require("debug")("ticketman:TicketWorker")
+
+oauth = require "./utils/oauth"
+
 env = process.env.NODE_ENV || 'development'
 DEFAULT_BASIC_AUTH = require('./config/config')[env]['basicAuth']
 
@@ -68,13 +72,13 @@ class TicketWorker extends EventEmitter
   requireTicket : (callback)->
     debuglog "requireTicket"
     return if @isBusy()
+
     options =
       method: 'PUT'
       auth : @basicAuth
       url: "#{@host}#{PATH_FOR_REQUIRE_TICKET}"
-      oauth : @oauth
-      json :
-        category : "test api"
+      headers : oauth.makeSignatureHeader(@id, 'PUT', PATH_FOR_REQUIRE_TICKET, body, @consumerSecret)
+      json : body
 
     request options, (err, res, ticket)->
       debuglog "requireTicket: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
@@ -86,9 +90,9 @@ class TicketWorker extends EventEmitter
         return debuglog "requireTicket: no more ticket"
 
       ticket.id = ticket._id if ticket._id
+      callback(err, ticket) if callback?
       @ticket = ticket
       @emit "new ticket", ticket
-      callback(err, ticket) if callback?
       return
     return
 
@@ -136,6 +140,8 @@ class TicketWorker extends EventEmitter
 
   # give up the current ticket
   giveup: ()->
+    debuglog "giveup"
+
     return unless @isBusy()
     options =
       method: 'PUT'
