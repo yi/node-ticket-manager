@@ -65,7 +65,8 @@ class TicketWorker extends EventEmitter
   watch : ->
     debuglog "watch: isBusy:#{@isBusy()}"
     if @isBusy()
-      @doTimeout() if Date.now() > @timeout +  @commenceAt
+      @giveup("ticket timeout") if Date.now() > @timeout +  @commenceAt
+      #@doTimeout() if Date.now() > @timeout +  @commenceAt
     else
       @requireTicket()
     return
@@ -115,13 +116,13 @@ class TicketWorker extends EventEmitter
     return
 
   # when timeout
-  doTimeout : ->
-    debuglog "doTimeout, @ticket:%j", @ticket
-    @giveup()
-    _ticket = @ticket
-    @ticket = null
-    @emit "timeout", _ticket
-    @setBusy(false)
+  #doTimeout : ->
+    #debuglog "doTimeout, @ticket:%j", @ticket
+    #@giveup("ticket timeout")
+    #_ticket = @ticket
+    #@ticket = null
+    #@emit "timeout", _ticket
+    #@setBusy(false)
     return
 
   # complete ticket
@@ -156,8 +157,6 @@ class TicketWorker extends EventEmitter
 
     path = "/api/tickets/#{@ticket._id}/comment"
 
-    debuglog "=========== ticket:%j", @ticket
-
     options =
       method: 'PUT'
       auth : @basicAuth
@@ -171,26 +170,31 @@ class TicketWorker extends EventEmitter
     return
 
   # give up the current ticket
-  giveup: ()->
+  giveup: (reason)->
     debuglog "giveup"
 
     return unless @isBusy()
 
     path = "/api/tickets/#{@ticket.id}/giveup"
 
+    body =
+      reason : reason
+
     options =
       method: 'PUT'
       auth : @basicAuth
-      headers : oauth.makeSignatureHeader(@id, 'PUT', path, {}, @consumerSecret)
+      headers : oauth.makeSignatureHeader(@id, 'PUT', path, body, @consumerSecret)
       url: "#{@host}#{path}"
-      json : {}
+      json : body
 
-    request options, (err, res, ticket)->
+    request options, (err, res, ticket)=>
       debuglog "giveup: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
+      _ticket = @ticket
+      @ticket = null
+      @emit "giveup", _ticket
+      @setBusy(false)
       return
 
-    @ticket = null
-    @setBusy(false)
     return
 
 module.exports=TicketWorker

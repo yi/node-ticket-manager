@@ -107,15 +107,29 @@ exports.giveup = (req, res, next)->
 
   req.body.id = id
 
-  Ticket.changeStatus req.body, STATUS.PENDING, (err, ticket)->
+  comment =
+    name: req.worker.name
+    kind: "danger"
+    content : req.body.reason || "#{req.worker.name} fail to process this ticket"
+
+  Ticket.addComment id, comment, (err, ticket)->
     return next(err) if err?
-    return next() unless ticket?
 
-    ticket.update {$inc: {attempts:1}}, (err, numberAffected)->
+    unless ticket?
+      return res.json
+        success : false
+        error : "missing ticket of #{id}"
+
+    Ticket.changeStatus req.body, STATUS.PENDING, (err, ticket)->
       return next(err) if err?
-      ticket.attempts = numberAffected
-      return res.json ticket
+      return next() unless ticket?
 
+      ticket.update {$inc: {attempts:1}}, (err, numberAffected)->
+        return next(err) if err?
+        ticket.attempts = numberAffected
+        return res.json ticket
+
+      return
     return
   return
 

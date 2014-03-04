@@ -54,20 +54,28 @@ describe "test ticket_worker", ->
       ticketWorker = new TicketWorker(WORKER_RECORD)
       done()
 
+
+  beforeEach ()->
+    ticketWorker.removeAllListeners()
+
+  afterEach ()->
+    ticketWorker.removeAllListeners()
+
+
   describe "ticket_worker", ->
 
     @timeout 30 * 1000
 
     it "live cycle for timeout", (done)->
 
-      ticketWorker.on "timeout", ()->
-        debuglog "ticketWorker.on 'timeout'"
+      ticketWorker.on "giveup", ()->
+        debuglog "ticketWorker.on 'giveup'"
         ticketWorker.removeAllListeners()
         done()
 
       ticketWorker.on "complete", ()->
         debuglog "ticketWorker.on 'complete'"
-        throw new Error "this should not hasppen"
+        throw new Error "this should not hasppen, ticketWorker.on 'complete'"
 
       ticketWorker.on "new ticket", (ticket)->
         debuglog "ticketWorker.on 'new ticket', ticket:%j", ticket
@@ -98,7 +106,7 @@ describe "test ticket_worker", ->
 
       ticketWorker.on "timeout", ()->
         debuglog "ticketWorker.on 'timeout'"
-        throw new Error "this should not hasppen"
+        throw new Error "this should not hasppen, ticketWorker.on 'timeout'"
 
       ticketWorker.on "new ticket", (ticket)->
         debuglog "ticketWorker.on 'new ticket', ticket:%j", ticket
@@ -111,6 +119,35 @@ describe "test ticket_worker", ->
         debuglog "err:#{err}, ticket:%j",  ticket
         should.not.exist err
         should.exist ticket
+
+
+    it "live cycle for giveup", (done)->
+
+      ticketWorker.on "giveup", ()->
+        debuglog "ticketWorker.on 'giveup'"
+        ticketWorker.removeAllListeners()
+        done()
+
+      ticketWorker.on "complete", ()->
+        debuglog "ticketWorker.on 'complete'"
+        throw new Error "this should not hasppen, ticketWorker.on 'complete'"
+
+      ticketWorker.on "timeout", ()->
+        debuglog "ticketWorker.on 'timeout'"
+        throw new Error "this should not hasppen, ticketWorker.on 'timeout'"
+
+      ticketWorker.on "new ticket", (ticket)->
+        debuglog "ticketWorker.on 'new ticket', ticket:%j", ticket
+        should.exist ticket
+        ticketWorker.isBusy().should.be.ok
+
+        setTimeout (()-> ticketWorker.giveup("give up for some reason")), 2000
+
+      ticketManager.issue "test ticket worker #{Date.now()}", "sample", {some:"content"}, (err, ticket)->
+        debuglog "err:#{err}, ticket:%j",  ticket
+        should.not.exist err
+        should.exist ticket
+
 
 
 

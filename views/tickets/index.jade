@@ -23,7 +23,7 @@ block content
         .col-md-1 category
         .col-md-1.text-right created
         .col-md-1.text-right updated
-        .col-md-1=" "
+        .col-md-1 Attempts
 
     .list-group
       each ticket in tickets
@@ -40,8 +40,8 @@ block content
               !=helper.genDateTag(ticket.created_at)
             .col-md-1.text-right
               !=helper.genDateTag(ticket.updated_at)
-            .col-md-1.text-right
-              i.fa.fa-chevron-right
+            .col-md-1=ticket.attempts
+
 
 
 
