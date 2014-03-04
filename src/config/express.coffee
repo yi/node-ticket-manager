@@ -78,7 +78,7 @@ module.exports = (app, config, passport)->
 
     # 向每个view render 注入本地数据
     app.locals
-      VERSION : Date.now().toString(36)
+      VERSION : config.version
       APP_NAME : config.app.name
       helper : view_helper
 

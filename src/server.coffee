@@ -13,8 +13,10 @@ path = require "path"
 _ = require "underscore"
 debuglog = require("debug")("ticketman:server")
 
+pkg = JSON.parse(fs.readFileSync(path.join(__dirname, "../package.json")))
+
 # config cli
-p.version("0.1.0")
+p.version(pkg.version)
   .option('-c, --config [VALUE]', 'path to config file')
   .option('-p, --port [VALUE]', 'port to run this web service')
   .option('-e, --environment  [VALUE]', 'application environment mode')
@@ -29,6 +31,7 @@ env = p.environment || process.env.NODE_ENV || 'development'
 configs = require('./config/config')
 config = configs[env]
 
+config.version = pkg.version
 # fix root path error after distillation
 config.root = path.resolve __dirname, "../"
 debuglog "[server] config.root:#{config.root}"
