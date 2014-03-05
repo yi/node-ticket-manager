@@ -35,10 +35,24 @@ block content
     .col-md-3.input-lg=ticket.attempts
 
 
-    .col-md-10.text-right
+    .col-md-9.text-right
       button.btn.btn-default(data-toggle="modal", data-target="#myModal")
         i.fa.fa-edit
         !=" Add Comment"
+
+
+    .col-md-1.text-right
+      if ticket.status == "processing"
+        form.abandon(action="/tickets/#{ticket.id}/giveup", method="POST")
+          input(type="hidden", name="name", value="admin")
+          input(type="hidden", name="reason", value="admin give up this ticket on web interface")
+          button.btn.btn-warning(type='submit')
+            i.fa.fa-trash-o
+            !=" Give Up"
+      else
+        button.btn.btn-warning(disabled="true")
+          i.fa.fa-trash-o
+          !=" Give Up"
 
     .col-md-1.text-right
 

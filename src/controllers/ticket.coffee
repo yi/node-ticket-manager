@@ -108,7 +108,7 @@ exports.giveup = (req, res, next)->
   req.body.id = id
 
   comment =
-    name: req.worker.name
+    name: req.body.name || req.worker.name
     kind: "danger"
     content : req.body.reason || "#{req.worker.name} fail to process this ticket"
 
