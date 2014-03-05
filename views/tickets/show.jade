@@ -84,9 +84,9 @@ block content
     each comment in ticket.comments
       li.list-group-item
         .row
-          .col-md-1
+          .col-md-2.text-right
             span.label(class="label-#{comment.kind}")=comment.name
-          .col-md-9=comment.content
+          .col-md-8=comment.content
           .col-md-2
             !=helper.genDateTag(comment.date)
 
