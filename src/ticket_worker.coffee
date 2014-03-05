@@ -39,7 +39,7 @@ class TicketWorker extends EventEmitter
 
     assert (@name = options.name), "missing id"
     assert (@id = options.id), "missing id"
-    assert (@consumerSecret = options.consumer_secret), "missing consumer secret"
+    assert (@consumerSecret = options.consumer_secret || options.consumerSecret), "missing consumer secret"
     assert (@watchCategory = options.category), "missing category to watch"
     assert (@host = options.host), "missing host"
 
