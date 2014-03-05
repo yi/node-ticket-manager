@@ -38,7 +38,7 @@ TicketManager.issue()
   #     options.id
   #     options.consumerSecret
   #     options.host
-  #     options.watchCategory
+  #     options.category
   #     options.timeout : ticket processing timeout in ms
   #     options.interval : self checking interval
   #     options.basicAuth : basicAuth

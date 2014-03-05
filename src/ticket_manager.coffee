@@ -9,6 +9,9 @@ request = require "request"
 
 PATH = "/api/tickets/new"
 
+SQARSH_CALLBCAK = ()-> return
+
+
 class TicketManager
 
   constructor: (@name, @host, basicAuth) ->
@@ -18,7 +21,7 @@ class TicketManager
     @basicAuth = basicAuth || DEFAULT_BASIC_AUTH
 
   # issue a new ticket
-  issue : (title, category, content, callback)->
+  issue : (title, category, content, callback=SQARSH_CALLBCAK)->
     options =
       method: 'POST'
       url: "#{@host}#{PATH}"
