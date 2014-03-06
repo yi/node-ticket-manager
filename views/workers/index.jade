@@ -22,7 +22,7 @@ block content
         .col-md-1.text-right updated
 
     ul.list-group
-      each worker in workers
+      each worker in results
         li.list-group-item
           .row
             .col-md-1
@@ -39,26 +39,41 @@ block content
             .col-md-1.text-right
               !=helper.genDateTag(worker.updated_at)
 
-    #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
-      form.login(action="/workers/new", method="post")
-        .modal-dialog
-          .modal-content
-            .modal-header
-              button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
-              h4#myModalLabel.modal-title Create new worker
-            .modal-body
 
-              .form-group
-                .controls
-                  input.input-lg.form-control#name(type='text', name="name", placeholder='Worker Name')
+  ul.pager
+    if after == null
+      li.previous.disabled
+        a(href="#") &larr; Older
+    else
+      li.previous
+        a(href="/workers?before=#{after}") &larr; Older
+    if before == null
+      li.next.disabled
+        a(href="#") Newer &rarr;
+    else
+      li.next
+        a(href="/workers?after=#{before}") Newer &rarr;
 
-              .form-group
-                .controls
-                  input.input-lg.form-control#desc(type='text', name="desc", placeholder='Description')
+  #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+    form.login(action="/workers/new", method="post")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            h4#myModalLabel.modal-title Create new worker
+          .modal-body
 
-            .modal-footer
-              button.btn.btn-default(type='button', data-dismiss='modal') Close
-              button.btn.btn-primary(type='submit') Save changes
+            .form-group
+              .controls
+                input.input-lg.form-control#name(type='text', name="name", placeholder='Worker Name')
+
+            .form-group
+              .controls
+                input.input-lg.form-control#desc(type='text', name="desc", placeholder='Description')
+
+          .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') Close
+            button.btn.btn-primary(type='submit') Save changes
 
 
 

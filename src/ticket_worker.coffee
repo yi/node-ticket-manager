@@ -175,6 +175,11 @@ class TicketWorker extends EventEmitter
 
     return unless @isBusy()
 
+    unless @ticket?
+      debuglog "ERROR: busy but not ticket!!!!"
+      @setBusy false
+      return
+
     path = "/api/tickets/#{@ticket.id}/giveup"
 
     body =
