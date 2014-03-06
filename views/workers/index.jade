@@ -75,6 +75,19 @@ block content
             button.btn.btn-default(type='button', data-dismiss='modal') Close
             button.btn.btn-primary(type='submit') Save changes
 
+  script.
+    var scrollListener = function () {
+      $(window).one("scroll", function () { //unbinds itself every time it fires
+          if ($(window).scrollTop() >= $(document).height() - $(window).height() - 100) {
+            console.log("on fire!" + Date.now())
+              //Add something at the end of the page
+          }
+          setTimeout(scrollListener, 200); //rebinds itself after 200ms
+      });
+    };
+    $(document).ready(function () {
+        scrollListener();
+    });
 
 
 

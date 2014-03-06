@@ -43,7 +43,7 @@ WorkerSchema.path('desc').validate (val)->
 WorkerSchema.plugin paginator,
   limit: 10
   defaultKey: '_id'
-  direction: 1
+  direction: -1
 
 ## Pre-save hook
 WorkerSchema.pre 'save', (next)->
