@@ -1,10 +1,9 @@
 ###
-# test for mock_tickets 
+# test for mock_tickets
 ###
 
 ## Module dependencies
 should = require "should"
-mock_tickets = require "../mock_tickets"
 
 ## Test cases
 describe "test mock_tickets", ->
@@ -16,4 +15,4 @@ describe "test mock_tickets", ->
 
     it "should", () ->
 
-  
+

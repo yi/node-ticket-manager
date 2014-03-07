@@ -19,6 +19,7 @@ class TicketManager
     assert @host, "missing host"
 
     @basicAuth = basicAuth || DEFAULT_BASIC_AUTH
+    debuglog "[TicketManager.constructor] @name:#{@name}, @host:#{@host}, @basicAuth:%j", @basicAuth
 
   # issue a new ticket
   issue : (title, category, content, callback=SQARSH_CALLBCAK)->

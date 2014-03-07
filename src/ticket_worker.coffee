@@ -60,6 +60,8 @@ class TicketWorker extends EventEmitter
     debuglog "constructor, @name:#{@name}, @watchCategory:#{@watchCategory}, @timeout:#{@timeout}, @interval:#{@interval}"
     setInterval (()=>@watch()), @interval
 
+    debuglog "[TicketWorker:constructor] @:%j", @
+
   isBusy : -> @_isBusy
 
   watch : ->
@@ -92,7 +94,7 @@ class TicketWorker extends EventEmitter
       json : body
 
     request options, (err, res, result)=>
-      debuglog "requireTicket: err:#{err}, res.statusCode:#{res.statusCode}, result:%j", result
+      debuglog "requireTicket: err:#{err}, res.statusCode:#{if res? then res.statusCode else "n/a"}, result:%j", result
 
       if err? then return debuglog "requireTicket: err: #{err}"
 
