@@ -39,7 +39,7 @@ describe "test ticket_worker", ->
         desc: "just for test"
 
     request options, (err, res, body)->
-      debuglog "err:#{err}, res.statusCode:#{res.statusCode}, body:%j", body
+      debuglog "err:#{err}, res.statusCode:#{if res? then res.statusCode else "n/a"}, body:%j", body
       assert.equal err, null
       assert.equal  res.statusCode, 200
       assert.notEqual body, null

@@ -1,8 +1,6 @@
 
 assert = require "assert"
 
-debuglog = require("debug")("ticketman:TicketWorker")
-
 oauth = require "./utils/oauth"
 
 env = process.env.NODE_ENV || 'development'
@@ -94,7 +92,7 @@ class TicketWorker extends EventEmitter
       json : body
 
     request options, (err, res, result)=>
-      debuglog "requireTicket: err:#{err}, res.statusCode:#{if res? then res.statusCode else "n/a"}, result:%j", result
+      debuglog "requireTicket: err:#{err}, res.statusCode:#{if res? then res.statusCode else "n/a"}, ticket:%j", (if ticket? then "#{ticket.title}(#{ticket._id})" else "n/a")
 
       if err? then return debuglog "requireTicket: err: #{err}"
 
@@ -140,7 +138,7 @@ class TicketWorker extends EventEmitter
       url: "#{@host}#{path}"
 
     request options, (err, res, ticket)->
-      debuglog "complete: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
+      debuglog "complete: err:#{err}, res.statusCode:#{if res? then res.statusCode else "n/a"}, ticket:%j", (if ticket? then "#{ticket.title}(#{ticket._id})" else "n/a")
       return
 
     _ticket = @ticket
@@ -167,7 +165,7 @@ class TicketWorker extends EventEmitter
       json : body
 
     request options, (err, res, ticket)->
-      debuglog "update: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
+      debuglog "update: err:#{err}, res.statusCode:#{if res? then res.statusCode else "n/a"}, ticket:%j", (if ticket? then "#{ticket.title}(#{ticket._id})" else "n/a")
       return
     return
 
@@ -195,7 +193,7 @@ class TicketWorker extends EventEmitter
       json : body
 
     request options, (err, res, ticket)=>
-      debuglog "giveup: err:#{err}, res.statusCode:#{res.statusCode}, ticket:%j", ticket
+      debuglog "giveup: err:#{err}, res.statusCode:#{if res? then res.statusCode else "n/a"}, ticket:%j", (if ticket? then "#{ticket.title}(#{ticket._id})" else "n/a")
       _ticket = @ticket
       @ticket = null
       @emit "giveup", _ticket

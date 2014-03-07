@@ -34,7 +34,7 @@ class TicketManager
         content : content
 
     request options, (err, res, body)->
-      debuglog "err:#{err}, res.statusCode:#{res.statusCode}, body:%j", body
+      debuglog "err:#{err}, res.statusCode:#{if res? then res.statusCode else "n/a"}, body:%j", body
       return callback err if err?
       unless res.statusCode is 200
         return callback(new Error("Network error, res.statusCode:#{res.statusCode}"))
