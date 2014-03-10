@@ -47,12 +47,12 @@ block content
   script(src='/js/jquery.mongoose-endless-scroll.js?#{VERSION}', type='text/javascript')
   script(type='text/javascript').
     if(jQuery){
-      $('#list').mongooseEndlessScroll({
+      $(window).mongooseEndlessScroll({
         pagesToKeep: 5,
-        fireOnce: false,
-        insertBefore: "#list div:first",
-        insertAfter: "#list div:last",
-        intervalFrequency: 5
+        loader:"<h1>LOADING...</h1>",
+        insertBefore: "#list",
+        insertAfter: "#list",
+        intervalFrequency: 500
       });
     }
 

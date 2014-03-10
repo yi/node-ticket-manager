@@ -2,14 +2,21 @@
 var MongooseEndlessScroll;
 
 MongooseEndlessScroll = (function() {
-  function MongooseEndlessScroll() {}
+  function MongooseEndlessScroll(options) {
+    this.url = options.url;
+    this.pageSequenceToBeforeAfter = {};
+  }
 
   MongooseEndlessScroll.prototype.content = function(fireSequence, pageSequence, scrollDirection) {
-    console.log("[jquery.mongoose-endless-scroll::content] " + arguments);
+    return console.log("[jquery.mongoose-endless-scroll::content] %j:", arguments);
   };
 
   MongooseEndlessScroll.prototype.callback = function(fireSequence, pageSequence, scrollDirection) {
-    console.log("[jquery.mongoose-endless-scroll::callback] " + arguments);
+    return console.log("[jquery.mongoose-endless-scroll::callback] %j:", arguments);
+  };
+
+  MongooseEndlessScroll.prototype.ceaseFire = function(fireSequence, pageSequence, scrollDirection) {
+    return false;
   };
 
   return MongooseEndlessScroll;
@@ -19,9 +26,10 @@ MongooseEndlessScroll = (function() {
 (function($) {
   return $.fn.mongooseEndlessScroll = function(options) {
     var m;
-    m = new MongooseEndlessScroll();
+    m = new MongooseEndlessScroll(options);
     options.content = m.content;
     options.callback = m.callback;
+    options.ceaseFire = m.ceaseFire;
     return $(this).endlessScroll(options);
   };
 })(jQuery);
