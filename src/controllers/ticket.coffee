@@ -18,6 +18,17 @@ exports.index = (req, res, next)->
     return
   return
 
+
+exports.list = (req, res, next)->
+  debuglog "list "
+
+  Ticket.paginate(req.params, '_id').execPagination (err, result)->
+    return next err if err?
+    result.success = true
+    res.json result
+  return
+
+
 # GET /tickets/:id
 exports.show = (req, res, next)->
   debuglog "show"

@@ -7,8 +7,6 @@ should = require "should"
 
 {TicketManager} = require "../"
 
-debuglog = require("debug")("ticketman:test:ticket_manager_test")
-
 config = require("../config/config")['development']
 
 request = require "request"
@@ -16,26 +14,31 @@ request = require "request"
 async = require "async"
 
 ticketManager = new TicketManager("test ticket_manager", "http://localhost:3456")
+
 ## Test cases
+describe "test mock_tickets", ->
 
-describe "mock ", ->
+  it "should moch 100 tickets", (done) ->
 
-  @timeout(10*60*1000)
-
-  it "should mock 100 tickets", (done) ->
     content =
       detailed : "content of ticket",
       mixed : ["data"]
+
+    title = "test ticket #{Date.now().toString(36)}"
+    category = "test"
 
     arr = []
     for i in [0..100]
       arr.push i
 
     iterator = (item, callback)->
-      now = Date.now()
-      ticketManager.issue "mock ticket #{now.toString(36)}-#{item}", ((now >> 8).toString(36)), content, callback
+      ticketManager.issue "#{title}-#{item}", category, content, callback
 
     async.each arr, iterator, done
+
+
+
+
 
 
 
