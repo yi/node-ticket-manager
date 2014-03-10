@@ -25,7 +25,7 @@ block content
         .col-md-1.text-right updated
         .col-md-1 Attempts
 
-    .list-group
+    #list.list-group
       each ticket in tickets
         a.list-group-item(href="/tickets/#{ticket.id}")
           .row
@@ -43,6 +43,18 @@ block content
             .col-md-1=ticket.attempts
 
 
+  script(src='/js/jquery.endless-scroll.js?#{VERSION}', type='text/javascript')
+  script(src='/js/jquery.mongoose-endless-scroll.js?#{VERSION}', type='text/javascript')
+  script(type='text/javascript').
+    if(jQuery){
+      $('#list').mongooseEndlessScroll({
+        pagesToKeep: 5,
+        fireOnce: false,
+        insertBefore: "#list div:first",
+        insertAfter: "#list div:last",
+        intervalFrequency: 5
+      });
+    }
 
 
 
