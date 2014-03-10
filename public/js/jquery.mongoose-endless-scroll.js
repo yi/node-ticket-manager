@@ -2,13 +2,73 @@
 var MongooseEndlessScroll;
 
 MongooseEndlessScroll = (function() {
+  var DEFAULTS;
+
+  DEFAULTS = {
+    inflowPixels: 50,
+    intervalFrequency: 250
+  };
+
   function MongooseEndlessScroll(options) {
-    this.url = options.url;
-    this.pageSequenceToBeforeAfter = {};
+    var scrollListener,
+      _this = this;
+    this.options = $.extend({}, DEFAULTS, options);
+    this.container = $(options.container);
+    this.isFecthing = false;
+    console.log("[jquery.mongoose-endless-scroll::options]");
+    console.dir(options);
+    scrollListener = function() {
+      return $(window).one("scroll", function() {
+        if ($(window).scrollTop() >= $(document).height() - $(window).height() - _this.options.inflowPixels) {
+          _this.fetchNext();
+        } else if ($(window).scrollTop() <= _this.options.inflowPixels) {
+          _this.fetchPrev();
+        }
+        return setTimeout(scrollListener, _this.options.intervalFrequency);
+      });
+    };
+    $(document).ready(function() {
+      return scrollListener();
+    });
   }
 
+  MongooseEndlessScroll.prototype.fetchNext = function() {
+    console.log("[jquery.mongoose-endless-scroll::fetchNext] @options.inflowPixels:" + this.options.inflowPixels);
+    $(window).scrollTop($(document).height() - $(window).height() - this.options.inflowPixels);
+    if (this.isFecthing) {
+
+    }
+  };
+
+  MongooseEndlessScroll.prototype.fetchPrev = function() {
+    var top;
+    console.log("[jquery.mongoose-endless-scroll::fetchPrev] ");
+    top = $(window).position();
+    console.dir(top);
+    console.log("[jquery.mongoose-endless-scroll::=======] top:" + top);
+    $(window).animate({
+      scrollTop: top
+    }, this.options.inflowPixels);
+    if (this.isFecthing) {
+
+    }
+  };
+
+  MongooseEndlessScroll.prototype.fetch = function(direction) {};
+
   MongooseEndlessScroll.prototype.content = function(fireSequence, pageSequence, scrollDirection) {
-    return console.log("[jquery.mongoose-endless-scroll::content] %j:", arguments);
+    var options;
+    console.log("[jquery.mongoose-endless-scroll::content] %j:, serviceUrl:%j", arguments, this.serviceUrl);
+    options = {
+      dataType: "json",
+      url: this.serviceUrl,
+      data: {},
+      success: function(data, textStatus) {
+        console.log("[jquery.mongoose-endless-scroll::getJSON] data:");
+        return console.dir(data);
+      }
+    };
+    return $.ajax(options);
   };
 
   MongooseEndlessScroll.prototype.callback = function(fireSequence, pageSequence, scrollDirection) {
@@ -25,11 +85,6 @@ MongooseEndlessScroll = (function() {
 
 (function($) {
   return $.fn.mongooseEndlessScroll = function(options) {
-    var m;
-    m = new MongooseEndlessScroll(options);
-    options.content = m.content;
-    options.callback = m.callback;
-    options.ceaseFire = m.ceaseFire;
-    return $(this).endlessScroll(options);
+    return new MongooseEndlessScroll(this, options);
   };
 })(jQuery);

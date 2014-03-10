@@ -95,7 +95,7 @@ class EndlessScroll
     @innerWrap       = $('.endless_scroll_inner_wrap', @target)
 
     @handleDeprecatedOptions()
-    @setInsertPositionsWhenNecessary()
+    #@setInsertPositionsWhenNecessary()
 
     $(scope).scroll =>
       @detectTarget(scope)
@@ -125,11 +125,19 @@ class EndlessScroll
     @options.content      = @options.data         if @options.data
     @options.inflowPixels = @options.bottomPixels if @options.bottomPixels
 
-  setInsertPositionsWhenNecessary: ->
-    container = "#{@target.selector} div.endless_scroll_inner_wrap"
+  #setInsertPositionsWhenNecessary: ->
+    #container = "#{@target.selector} div.endless_scroll_inner_wrap"
 
-    @options.insertBefore = "#{container} div:first" if defaults.insertBefore is null
-    @options.insertAfter  = "#{container} div:last"  if defaults.insertAfter is null
+    #console.log "[jquery.endless-scroll::setInsertPositionsWhenNecessary] 1"
+    #console.dir @options.insertBefore
+    #console.dir @options.insertAfter
+
+    #@options.insertBefore = "#{container} div:first" if defaults.insertBefore is null
+    #@options.insertAfter  = "#{container} div:last"  if defaults.insertAfter is null
+
+    #console.log "[jquery.endless-scroll::setInsertPositionsWhenNecessary] 2"
+    #console.dir @options.insertBefore
+    #console.dir @options.insertAfter
 
   detectTarget: (scope) ->
     @target   = scope

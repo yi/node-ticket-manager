@@ -107,7 +107,6 @@ EndlessScroll = (function() {
     this.lastContent = 'dummy';
     this.innerWrap = $('.endless_scroll_inner_wrap', this.target);
     this.handleDeprecatedOptions();
-    this.setInsertPositionsWhenNecessary();
     $(scope).scroll(function() {
       _this.detectTarget(scope);
       return _this.detectScrollDirection();
@@ -146,17 +145,6 @@ EndlessScroll = (function() {
     }
     if (this.options.bottomPixels) {
       return this.options.inflowPixels = this.options.bottomPixels;
-    }
-  };
-
-  EndlessScroll.prototype.setInsertPositionsWhenNecessary = function() {
-    var container;
-    container = "" + this.target.selector + " div.endless_scroll_inner_wrap";
-    if (defaults.insertBefore === null) {
-      this.options.insertBefore = "" + container + " div:first";
-    }
-    if (defaults.insertAfter === null) {
-      return this.options.insertAfter = "" + container + " div:last";
     }
   };
 

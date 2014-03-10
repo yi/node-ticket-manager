@@ -50,9 +50,9 @@ block content
       $(window).mongooseEndlessScroll({
         pagesToKeep: 5,
         loader:"<h1>LOADING...</h1>",
-        insertBefore: "#list",
-        insertAfter: "#list",
-        intervalFrequency: 500
+        serviceUrl : "/tickets/list.json",
+        container : $("#list"),
+        intervalFrequency: 200
       });
     }
 

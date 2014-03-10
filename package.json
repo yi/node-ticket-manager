@@ -39,7 +39,7 @@
     "mongoose": "3.8.6",
     "underscore": "1.5.2",
     "mongoose-times": "0.1.0",
-    "mongoose-paginator": "0.1.2",
+    "mongoose-paginator": ">= 0.2.0",
     "commander": ">=1.0.1",
     "udid": "0.1.4",
     "debug": "0.7.4",
