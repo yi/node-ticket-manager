@@ -9,11 +9,19 @@ MongooseEndlessScroll = (function() {
     intervalFrequency: 250
   };
 
-  function MongooseEndlessScroll(options) {
+  function MongooseEndlessScroll(scope, options) {
     var scrollListener,
       _this = this;
     this.options = $.extend({}, DEFAULTS, options);
     this.container = $(options.container);
+    this.elLoadingPrev = this.options.elLoadingPrev;
+    this.elLoadingPrev.click(function() {
+      return _this.fetchPrev();
+    });
+    this.elLoadingNext = this.options.elLoadingNext;
+    this.elLoadingNext.click(function() {
+      return _this.fetchNext();
+    });
     this.isFecthing = false;
     console.log("[jquery.mongoose-endless-scroll::options]");
     console.dir(options);
@@ -33,22 +41,23 @@ MongooseEndlessScroll = (function() {
   }
 
   MongooseEndlessScroll.prototype.fetchNext = function() {
+    var data,
+      _this = this;
     console.log("[jquery.mongoose-endless-scroll::fetchNext] @options.inflowPixels:" + this.options.inflowPixels);
     $(window).scrollTop($(document).height() - $(window).height() - this.options.inflowPixels);
     if (this.isFecthing) {
-
+      return;
     }
+    data = {};
+    return $.getJSON(this.options.serviceUrl, data, function(data, textStatus) {
+      console.log("[jquery.mongoose-endless-scroll::receive] textStatus:" + textStatus + ", data:" + data);
+      _this.isFecthing = false;
+    });
   };
 
   MongooseEndlessScroll.prototype.fetchPrev = function() {
-    var top;
     console.log("[jquery.mongoose-endless-scroll::fetchPrev] ");
-    top = $(window).position();
-    console.dir(top);
-    console.log("[jquery.mongoose-endless-scroll::=======] top:" + top);
-    $(window).animate({
-      scrollTop: top
-    }, this.options.inflowPixels);
+    $(window).scrollTop(this.options.inflowPixels);
     if (this.isFecthing) {
 
     }

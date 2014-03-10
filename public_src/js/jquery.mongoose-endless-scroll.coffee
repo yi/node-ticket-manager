@@ -17,9 +17,15 @@ class MongooseEndlessScroll
     #ceaseFire:         -> false
 
 
-  constructor: (options) ->
+  constructor: (scope, options) ->
     @options = $.extend({}, DEFAULTS , options)
     @container = $(options.container)
+
+    @elLoadingPrev = @options.elLoadingPrev
+    @elLoadingPrev.click => @fetchPrev()
+    @elLoadingNext = @options.elLoadingNext
+    @elLoadingNext.click => @fetchNext()
+
     @isFecthing = false
     console.log "[jquery.mongoose-endless-scroll::options]"
     console.dir options
@@ -41,15 +47,17 @@ class MongooseEndlessScroll
     $(window).scrollTop($(document).height() - $(window).height() - @options.inflowPixels)
     return if @isFecthing
 
+    data ={}
+      #sth:"is happend"
+
+    $.getJSON @options.serviceUrl, data, (data, textStatus)=>
+      console.log "[jquery.mongoose-endless-scroll::receive] textStatus:#{textStatus}, data:#{data}"
+      @isFecthing = false
+      return
+
   fetchPrev: ->
     console.log "[jquery.mongoose-endless-scroll::fetchPrev] "
-    top =$(window).position()
-    console.dir top
-
-    console.log "[jquery.mongoose-endless-scroll::=======] top:#{top}"
-
-    $(window).animate({scrollTop:top}, @options.inflowPixels)
-    #$(window).scrollTop(@options.inflowPixels)
+    $(window).scrollTop(@options.inflowPixels)
     return if @isFecthing
 
   fetch : (direction)->

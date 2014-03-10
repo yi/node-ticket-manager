@@ -10,19 +10,25 @@ debuglog = require("debug")("ticketman:controller:ticket")
 # GET /tickets
 exports.index = (req, res, next)->
   debuglog "index"
-  Ticket.find().sort({created_at:'desc'}).exec (err, tickets)->
-    return next err if err?
-    res.render 'tickets/index',
-      title: 'All Tickets'
-      tickets : tickets
-    return
+  res.render 'tickets/index',
+    title: 'All Tickets'
+    tickets : []
+
+  #Ticket.find().sort({created_at:'desc'}).exec (err, tickets)->
+    #return next err if err?
+    #res.render 'tickets/index',
+      #title: 'All Tickets'
+      #tickets : tickets
+    #return
   return
 
 
 exports.list = (req, res, next)->
   debuglog "list "
 
-  Ticket.paginate(req.params, '_id').execPagination (err, result)->
+  console.dir req.query
+
+  Ticket.paginate(req.query || {}, '_id').sort({created_at:'desc'}).execPagination (err, result)->
     return next err if err?
     result.success = true
     res.json result

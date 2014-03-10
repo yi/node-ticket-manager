@@ -25,7 +25,10 @@ block content
         .col-md-1.text-right updated
         .col-md-1 Attempts
 
+
     #list.list-group
+
+      a#loading-prev.list-group-item.text-center Loading...
       each ticket in tickets
         a.list-group-item(href="/tickets/#{ticket.id}")
           .row
@@ -42,6 +45,7 @@ block content
               !=helper.genDateTag(ticket.updated_at)
             .col-md-1=ticket.attempts
 
+      a#loading-next.list-group-item.text-center Loading...
 
   script(src='/js/jquery.endless-scroll.js?#{VERSION}', type='text/javascript')
   script(src='/js/jquery.mongoose-endless-scroll.js?#{VERSION}', type='text/javascript')
@@ -52,7 +56,9 @@ block content
         loader:"<h1>LOADING...</h1>",
         serviceUrl : "/tickets/list.json",
         container : $("#list"),
-        intervalFrequency: 200
+        intervalFrequency: 200,
+        elLoadingPrev : $("#loading-prev"),
+        elLoadingNext : $("#loading-next")
       });
     }
 
