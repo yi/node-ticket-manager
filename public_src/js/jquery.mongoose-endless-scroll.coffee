@@ -1,9 +1,9 @@
 
 class MongooseEndlessScroll
 
-  DIRECTION_NEXT = "after"
+  DIRECTION_DOWN = "after"
 
-  DIRECTION_PREV = "before"
+  DIRECTION_UP = "before"
 
   DEFAULTS =
     itemsToKeep:       null
@@ -47,47 +47,49 @@ class MongooseEndlessScroll
     console.log "[jquery.mongoose-endless-scroll::options]"
     console.dir options
 
-    scrollListener = =>
-      $(window).one "scroll", =>
-        if ($(window).scrollTop() >= $(document).height() - $(window).height() - @options.inflowPixels)
-          @fetchNext()
-        else if $(window).scrollTop() <= @options.inflowPixels
-          @fetchPrev()
-        setTimeout scrollListener, @options.intervalFrequency
+    #scrollListener = =>
+      #$(window).one "scroll", =>
+        #if ($(window).scrollTop() >= $(document).height() - $(window).height() - @options.inflowPixels)
+          #@fetchNext()
+        #else if $(window).scrollTop() <= @options.inflowPixels
+          #@fetchPrev()
+        #setTimeout scrollListener, @options.intervalFrequency
 
     $(document).ready =>
-      scrollListener()
+      #scrollListener()
       if @options.autoStart then @fetchNext()
 
     return
 
   fetchNext : ->
     #console.log "[jquery.mongoose-endless-scroll::fetchNext] @options.inflowPixels:#{@options.inflowPixels}"
-    $(window).scrollTop($(document).height() - $(window).height() - @options.inflowPixels)
+    #$(window).scrollTop($(document).height() - $(window).height() - @options.inflowPixels)
 
     data = {}
-    data[DIRECTION_NEXT] = @ids[@ids.length - 1]
+    data[DIRECTION_DOWN] = @ids[@ids.length - 1]
     @fetch data
     return
 
   fetchPrev: ->
     #console.log "[jquery.mongoose-endless-scroll::fetchPrev] "
-    $(window).scrollTop(@options.inflowPixels)
+    #$(window).scrollTop(@options.inflowPixels)
 
     data = {}
-    data[DIRECTION_PREV] = @ids[0]
+    data[DIRECTION_UP] = @ids[0]
     @fetch data
     return
 
   fetch : (data)->
-    console.log "[jquery.mongoose-endless-scroll::fetch] "
-    console.dir data
+    #console.log "[jquery.mongoose-endless-scroll::fetch] "
+    #console.dir data
 
     if @isFecthing
       console.log "[jquery.mongoose-endless-scroll::fetch] in fetching"
       return
 
-    if (data[DIRECTION_NEXT] is @downmonstId) || (data[DIRECTION_PREV] is @upmonstId)
+    debugger
+
+    if (data[DIRECTION_DOWN] is @downmonstId) || (data[DIRECTION_UP] is @upmonstId)
       console.log "[jquery.mongoose-endless-scroll::fetch] reach boundary"
       return
 
@@ -107,14 +109,11 @@ class MongooseEndlessScroll
         @isFecthing = false
 
         # figure out direction
-        currentDirection = if data.after? then DIRECTION_NEXT else DIRECTION_PREV
+        currentDirection = if data[DIRECTION_DOWN]? then DIRECTION_DOWN else DIRECTION_UP
         #console.log "[jquery.mongoose-endless-scroll::receive] currentDirection:#{currentDirection}"
 
-        # FIXME:
-        #   for some reason, the mongoose will always return results even before/after reaches the end
-        #
-        #   following is quick fix to remove duplicate results
-        # ty 2014-03-11
+        debugger
+
         res.results or= []
         pos = 0
         while pos < res.results.length
@@ -128,18 +127,18 @@ class MongooseEndlessScroll
         # validate result
         unless Array.isArray(res.results) and res.results.length
           # reach boundary
-          if currentDirection is DIRECTION_NEXT
-            @downmonstId = data.after
-            @elLoadingNext.hide()
+          if currentDirection is DIRECTION_DOWN
+            @downmonstId = data[DIRECTION_DOWN]
+            #@elLoadingNext.hide()
           else
-            @upmonstId = data.before
-            @elLoadingPrev.hide()
+            @upmonstId = data[DIRECTION_UP]
+            #@elLoadingPrev.hide()
           return
 
         @addInResults(res.results, currentDirection)
 
         # render partial
-        if currentDirection is DIRECTION_NEXT then @renderBottomPartial() else @renderTopPartial()
+        if currentDirection is DIRECTION_DOWN then @renderBottomPartial() else @renderTopPartial()
 
         # clear redundancy
         if @options.itemsToKeep > 0 and (diff = @ids.length - @options.itemsToKeep) > 0
@@ -162,26 +161,27 @@ class MongooseEndlessScroll
     #debugger
     while(count > 0)
       # remove on the opposite side
-      id = if direction is DIRECTION_NEXT then @ids.shift() else @ids.pop()
+      id = if direction is DIRECTION_DOWN then @ids.shift() else @ids.pop()
 
       delete @idToData[id]
       $("##{id}").remove()
       --count
 
     # show the more handler
-    if direction is DIRECTION_NEXT
-      @elLoadingPrev.show()
+    if direction is DIRECTION_DOWN
+      #@elLoadingPrev.show()
       @topmostId = null
     else
-      @elLoadingNext.show()
+      #@elLoadingNext.show()
       @bottomostId = null
     return
 
   addInResults : (results, direction)->
+    results.reverse() if direction is DIRECTION_UP
     for result in results
       id = result._id
       continue if ~@ids.indexOf(id)
-      if direction is DIRECTION_NEXT
+      if direction is DIRECTION_DOWN
         @ids.push id
       else
         @ids.unshift id

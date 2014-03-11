@@ -43,7 +43,7 @@ TicketSchema.plugin timestamps,
 TicketSchema.plugin paginator,
   limit: 10,
   defaultKey: '_id',
-  direction: 1
+  direction: 'desc'
 
 ## Validations
 TicketSchema.path('title').validate (val)->

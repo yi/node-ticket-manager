@@ -2,11 +2,11 @@
 var MongooseEndlessScroll;
 
 MongooseEndlessScroll = (function() {
-  var DEFAULTS, DIRECTION_NEXT, DIRECTION_PREV;
+  var DEFAULTS, DIRECTION_DOWN, DIRECTION_UP;
 
-  DIRECTION_NEXT = "after";
+  DIRECTION_DOWN = "after";
 
-  DIRECTION_PREV = "before";
+  DIRECTION_UP = "before";
 
   DEFAULTS = {
     itemsToKeep: null,
@@ -19,8 +19,7 @@ MongooseEndlessScroll = (function() {
   };
 
   function MongooseEndlessScroll(scope, options) {
-    var scrollListener,
-      _this = this;
+    var _this = this;
     this.options = $.extend({}, DEFAULTS, options);
     this.container = $(options.container);
     this.elLoadingPrev = this.options.elLoadingPrev;
@@ -38,18 +37,7 @@ MongooseEndlessScroll = (function() {
     this.isFecthing = false;
     console.log("[jquery.mongoose-endless-scroll::options]");
     console.dir(options);
-    scrollListener = function() {
-      return $(window).one("scroll", function() {
-        if ($(window).scrollTop() >= $(document).height() - $(window).height() - _this.options.inflowPixels) {
-          _this.fetchNext();
-        } else if ($(window).scrollTop() <= _this.options.inflowPixels) {
-          _this.fetchPrev();
-        }
-        return setTimeout(scrollListener, _this.options.intervalFrequency);
-      });
-    };
     $(document).ready(function() {
-      scrollListener();
       if (_this.options.autoStart) {
         return _this.fetchNext();
       }
@@ -59,30 +47,27 @@ MongooseEndlessScroll = (function() {
 
   MongooseEndlessScroll.prototype.fetchNext = function() {
     var data;
-    $(window).scrollTop($(document).height() - $(window).height() - this.options.inflowPixels);
     data = {};
-    data[DIRECTION_NEXT] = this.ids[this.ids.length - 1];
+    data[DIRECTION_DOWN] = this.ids[this.ids.length - 1];
     this.fetch(data);
   };
 
   MongooseEndlessScroll.prototype.fetchPrev = function() {
     var data;
-    $(window).scrollTop(this.options.inflowPixels);
     data = {};
-    data[DIRECTION_PREV] = this.ids[0];
+    data[DIRECTION_UP] = this.ids[0];
     this.fetch(data);
   };
 
   MongooseEndlessScroll.prototype.fetch = function(data) {
     var ajaxOptions,
       _this = this;
-    console.log("[jquery.mongoose-endless-scroll::fetch] ");
-    console.dir(data);
     if (this.isFecthing) {
       console.log("[jquery.mongoose-endless-scroll::fetch] in fetching");
       return;
     }
-    if ((data[DIRECTION_NEXT] === this.downmonstId) || (data[DIRECTION_PREV] === this.upmonstId)) {
+    debugger;
+    if ((data[DIRECTION_DOWN] === this.downmonstId) || (data[DIRECTION_UP] === this.upmonstId)) {
       console.log("[jquery.mongoose-endless-scroll::fetch] reach boundary");
       return;
     }
@@ -94,7 +79,8 @@ MongooseEndlessScroll = (function() {
       success: function(res, textStatus) {
         var currentDirection, diff, item, pos;
         _this.isFecthing = false;
-        currentDirection = data.after != null ? DIRECTION_NEXT : DIRECTION_PREV;
+        currentDirection = data[DIRECTION_DOWN] != null ? DIRECTION_DOWN : DIRECTION_UP;
+        debugger;
         res.results || (res.results = []);
         pos = 0;
         while (pos < res.results.length) {
@@ -107,17 +93,15 @@ MongooseEndlessScroll = (function() {
           }
         }
         if (!(Array.isArray(res.results) && res.results.length)) {
-          if (currentDirection === DIRECTION_NEXT) {
-            _this.downmonstId = data.after;
-            _this.elLoadingNext.hide();
+          if (currentDirection === DIRECTION_DOWN) {
+            _this.downmonstId = data[DIRECTION_DOWN];
           } else {
-            _this.upmonstId = data.before;
-            _this.elLoadingPrev.hide();
+            _this.upmonstId = data[DIRECTION_UP];
           }
           return;
         }
         _this.addInResults(res.results, currentDirection);
-        if (currentDirection === DIRECTION_NEXT) {
+        if (currentDirection === DIRECTION_DOWN) {
           _this.renderBottomPartial();
         } else {
           _this.renderTopPartial();
@@ -139,29 +123,30 @@ MongooseEndlessScroll = (function() {
     var id;
     console.log("[jquery.mongoose-endless-scroll::clearRedundancy] count:" + count + ", direction:" + direction);
     while (count > 0) {
-      id = direction === DIRECTION_NEXT ? this.ids.shift() : this.ids.pop();
+      id = direction === DIRECTION_DOWN ? this.ids.shift() : this.ids.pop();
       delete this.idToData[id];
       $("#" + id).remove();
       --count;
     }
-    if (direction === DIRECTION_NEXT) {
-      this.elLoadingPrev.show();
+    if (direction === DIRECTION_DOWN) {
       this.topmostId = null;
     } else {
-      this.elLoadingNext.show();
       this.bottomostId = null;
     }
   };
 
   MongooseEndlessScroll.prototype.addInResults = function(results, direction) {
     var id, result, _i, _len;
+    if (direction === DIRECTION_UP) {
+      results.reverse();
+    }
     for (_i = 0, _len = results.length; _i < _len; _i++) {
       result = results[_i];
       id = result._id;
       if (~this.ids.indexOf(id)) {
         continue;
       }
-      if (direction === DIRECTION_NEXT) {
+      if (direction === DIRECTION_DOWN) {
         this.ids.push(id);
       } else {
         this.ids.unshift(id);

@@ -13,24 +13,17 @@ exports.index = (req, res, next)->
   res.render 'tickets/index',
     title: 'All Tickets'
     tickets : []
-
-  #Ticket.find().sort({created_at:'desc'}).exec (err, tickets)->
-    #return next err if err?
-    #res.render 'tickets/index',
-      #title: 'All Tickets'
-      #tickets : tickets
-    #return
   return
 
 
 exports.list = (req, res, next)->
-  debuglog "list "
+  debuglog "list req.query: %j", req.query
 
-  console.dir req.query
-
-  Ticket.paginate(req.query || {}, '_id').sort({created_at:'desc'}).execPagination (err, result)->
+  Ticket.paginate(req.query || {}, '_id').select('-comments -content').execPagination (err, result)->
     return next err if err?
     result.success = true
+    console.log "[ticket::list] dump result:"
+    console.dir result
     res.json result
   return
 
