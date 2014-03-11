@@ -2,7 +2,11 @@
 var MongooseEndlessScroll;
 
 MongooseEndlessScroll = (function() {
-  var DEFAULTS;
+  var DEFAULTS, DIRECTION_NEXT, DIRECTION_PREV;
+
+  DIRECTION_NEXT = "after";
+
+  DIRECTION_PREV = "before";
 
   DEFAULTS = {
     inflowPixels: 50,
@@ -22,6 +26,10 @@ MongooseEndlessScroll = (function() {
     this.elLoadingNext.click(function() {
       return _this.fetchNext();
     });
+    this.upmonstId = null;
+    this.downmonstId = null;
+    this.idToData = {};
+    this.ids = [];
     this.isFecthing = false;
     console.log("[jquery.mongoose-endless-scroll::options]");
     console.dir(options);
@@ -41,29 +49,127 @@ MongooseEndlessScroll = (function() {
   }
 
   MongooseEndlessScroll.prototype.fetchNext = function() {
-    var data,
-      _this = this;
-    console.log("[jquery.mongoose-endless-scroll::fetchNext] @options.inflowPixels:" + this.options.inflowPixels);
+    var data;
     $(window).scrollTop($(document).height() - $(window).height() - this.options.inflowPixels);
-    if (this.isFecthing) {
-      return;
-    }
     data = {};
-    return $.getJSON(this.options.serviceUrl, data, function(data, textStatus) {
-      console.log("[jquery.mongoose-endless-scroll::receive] textStatus:" + textStatus + ", data:" + data);
-      _this.isFecthing = false;
-    });
+    data[DIRECTION_NEXT] = this.ids[this.ids.length - 1];
+    this.fetch(data);
   };
 
   MongooseEndlessScroll.prototype.fetchPrev = function() {
-    console.log("[jquery.mongoose-endless-scroll::fetchPrev] ");
+    var data;
     $(window).scrollTop(this.options.inflowPixels);
-    if (this.isFecthing) {
+    data = {};
+    data[DIRECTION_PREV] = this.ids[0];
+    this.fetch(data);
+  };
 
+  MongooseEndlessScroll.prototype.fetch = function(data) {
+    var ajaxOptions,
+      _this = this;
+    if (this.isFecthing) {
+      console.log("[jquery.mongoose-endless-scroll::fetch] in fetching");
+      return;
+    }
+    if (data[DIRECTION_NEXT] === this.downmonstId || data[DIRECTION_PREV] === this.upmonstId) {
+      console.log("[jquery.mongoose-endless-scroll::fetch] reach boundary");
+      return;
+    }
+    this.isFecthing = true;
+    ajaxOptions = {
+      dataType: "json",
+      url: this.options.serviceUrl,
+      data: data,
+      success: function(res, textStatus) {
+        var currentDirection;
+        console.log("[jquery.mongoose-endless-scroll::receive] textStatus:" + textStatus + ", res:");
+        console.dir(res);
+        console.dir(data);
+        _this.isFecthing = false;
+        currentDirection = data.after != null ? DIRECTION_NEXT : DIRECTION_PREV;
+        console.log("[jquery.mongoose-endless-scroll::receive] currentDirection:" + currentDirection);
+        if (!(Array.isArray(res.results) && res.results.length)) {
+          if (currentDirection === DIRECTION_NEXT) {
+            _this.downmonstId = data.after;
+          } else {
+            _this.upmonstId = data.before;
+          }
+          return;
+        }
+        _this.addInResults(res.results, currentDirection);
+        if (currentDirection === DIRECTION_NEXT) {
+          _this.renderBottomPartial();
+        } else {
+          _this.renderTopPartial();
+        }
+      },
+      error: function(jqXHR, textStatus, err) {
+        console.log("[jquery.mongoose-endless-scroll::error] err:" + err);
+        _this.container.trigger("mescroll_error", err);
+        _this.isFecthing = false;
+      }
+    };
+    $.ajax(ajaxOptions);
+  };
+
+  MongooseEndlessScroll.prototype.addInResults = function(results, direction) {
+    var id, result, _i, _len;
+    for (_i = 0, _len = results.length; _i < _len; _i++) {
+      result = results[_i];
+      id = result._id;
+      if (~this.ids.indexOf(id)) {
+        continue;
+      }
+      if (direction === DIRECTION_NEXT) {
+        this.ids.push(id);
+      } else {
+        this.ids.unshift(id);
+      }
+      this.idToData[id] = result;
     }
   };
 
-  MongooseEndlessScroll.prototype.fetch = function(direction) {};
+  MongooseEndlessScroll.prototype.getDisplayedTopmostId = function() {
+    return $("" + this.container.selector + " a").first().attr("id");
+  };
+
+  MongooseEndlessScroll.prototype.getDisplayedBottommostId = function() {
+    return $("" + this.container.selector + " a").last().attr("id");
+  };
+
+  MongooseEndlessScroll.prototype.formatItem = function(item) {
+    return "<a href=\"/tickets/" + item._id + "\" class=\"list-group-item\" id=\"" + item._id + "\">\n  <div class=\"row\"><div class=\"col-md-1\">\n    <span class=\"label label-success\">" + item.status + "</span>\n  </div>\n  <div class=\"col-md-2\"><small><code>" + item._id + "</code></small></div>\n  <div class=\"col-md-5\">" + item.title + "</div>\n  <div class=\"col-md-1\">" + item.category + "</div>\n  <div class=\"col-md-1 text-right\"><small title=\"2014-03-07T09:11:34.813Z\" class=\"muted timeago\">" + item.created_at + "</small></div>\n  <div class=\"col-md-1 text-right\"><small title=\"2014-03-07T09:11:52.074Z\" class=\"muted timeago\">" + item.updated_at + "</small></div>\n  <div class=\"col-md-1\">" + item.attempts + "</div></div></a>";
+  };
+
+  MongooseEndlessScroll.prototype.renderTopPartial = function() {
+    var pos, topmostId, _results;
+    topmostId = this.getDisplayedTopmostId();
+    pos = this.ids.indexOf(topmostId) - 1;
+    if (pos < -1) {
+      pos = this.ids.length - 1;
+    }
+    _results = [];
+    while (pos > -1) {
+      this.container.prepend(this.formatItem(this.idToData[this.ids[pos]]));
+      _results.push(--pos);
+    }
+    return _results;
+  };
+
+  MongooseEndlessScroll.prototype.renderBottomPartial = function() {
+    var bottomostId, pos, _results;
+    bottomostId = this.getDisplayedBottommostId();
+    pos = this.ids.indexOf(bottomostId);
+    if (pos < -1) {
+      pos = 0;
+    }
+    _results = [];
+    while (pos < this.ids.length) {
+      this.container.append(this.formatItem(this.idToData[this.ids[pos]]));
+      _results.push(++pos);
+    }
+    return _results;
+  };
 
   MongooseEndlessScroll.prototype.content = function(fireSequence, pageSequence, scrollDirection) {
     var options;

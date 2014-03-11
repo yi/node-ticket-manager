@@ -26,9 +26,11 @@ block content
         .col-md-1 Attempts
 
 
-    #list.list-group
+    .list-group
+      a#loading-prev.list-group-item.text-center
+        i.fa.fa-chevron-up=" More Newer Tickets"
 
-      a#loading-prev.list-group-item.text-center Loading...
+    #list.list-group
       each ticket in tickets
         a.list-group-item(href="/tickets/#{ticket.id}")
           .row
@@ -45,7 +47,9 @@ block content
               !=helper.genDateTag(ticket.updated_at)
             .col-md-1=ticket.attempts
 
-      a#loading-next.list-group-item.text-center Loading...
+    .list-group
+      a#loading-next.list-group-item.text-center
+        i.fa.fa-chevron-down=" More Older Tickets"
 
   script(src='/js/jquery.endless-scroll.js?#{VERSION}', type='text/javascript')
   script(src='/js/jquery.mongoose-endless-scroll.js?#{VERSION}', type='text/javascript')

@@ -41,7 +41,7 @@ TicketSchema.plugin timestamps,
   lastUpdated: "updated_at"
 
 TicketSchema.plugin paginator,
-  limit: 50,
+  limit: 10,
   defaultKey: '_id',
   direction: 1
 
