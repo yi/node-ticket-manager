@@ -4,16 +4,30 @@
 [![Dependencies Status](https://david-dm.org/yi/node-ticket-manager.png)](https://david-dm.org/yi/node-ticket-manager)
 
 
-a simple ticket system contians a centeral ticket dispatcher and distributed workers. This system is written in NodeJS, runing on MongoDB
+A simple pull-based job/ticket system contians a centeral ticket dispatcher and distributed workers. This system is written in NodeJS, runing on MongoDB
 
-## Install
+This system consists of following 3 parts:
+
+ * Ticketman website - a ExpressJS app display the current status of the centeral ticket system
+ * TicketManager - a JS Class for create(TicketManager.issue) new ticket
+ * TicketWorker - a JS Class pulls ticket from Ticketman website on a routine, it can also complete/giveup/add comment to a ticket. The TicketWorker instance works on one ticket at time.
+
+## Install as NodeJS module:
 Install the module with:
 
 ```bash
-npm install ticket-system
+npm install ticketman
 ```
 
-## Usage
+## Use the Ticketman website
+
+ 1. Download and extract the latest release from https://github.com/yi/node-ticket-manager/releases
+ 2. run "npm install" to install dependencies
+ 3. run "npm start" to start the service
+ 4. Open http://localhost:3456 in your web browser
+
+
+## NodeJS Module Usage
 ```javascript
 var  TicketWorker = require("ticketman").TicketWorker;
 var  TicketManager = require("ticketman").TicketManager;
