@@ -51,18 +51,38 @@ block content
       a#loading-next.list-group-item.text-center
         i.fa.fa-chevron-down=" More Older Tickets"
 
-  script(src='/js/jquery.endless-scroll.js?#{VERSION}', type='text/javascript')
   script(src='/js/jquery.mongoose-endless-scroll.js?#{VERSION}', type='text/javascript')
   script(type='text/javascript').
     if(jQuery){
+      var TICKET_STATUS_TO_INFO_TYPE = {
+        pending: 'default',
+        processing: 'primary',
+        completed: 'success',
+        abandoned: 'danger'
+      };
+
+      var genDateTag = function(date) {
+        var dateStr, isoStr;
+        isoStr = date instanceof Date ? date.toISOString() : date;
+        dateStr = date instanceof Date ? date.toDateString() : date;
+        return "<small title='" + isoStr + "' class='muted timeago'>" + dateStr + "</small>";
+      };
+
+      var genLabelByStatus = function(status) {
+        return "<span class='label label-" + (TICKET_STATUS_TO_INFO_TYPE[status] || 'default') + "'>" + status + "</span>";
+      }
+
       $(window).mongooseEndlessScroll({
-        pagesToKeep: 5,
-        loader:"<h1>LOADING...</h1>",
+        itemsToKeep: 15,
         serviceUrl : "/tickets/list.json",
         container : $("#list"),
         intervalFrequency: 200,
         elLoadingPrev : $("#loading-prev"),
-        elLoadingNext : $("#loading-next")
+        elLoadingNext : $("#loading-next"),
+        formatItem: function(item) {
+          return "<a href=\"/tickets/" + item._id + "\" class=\"list-group-item\" id=\"" + item._id + "\">\n  <div class=\"row\"><div class=\"col-md-1\">" + (genLabelByStatus(item.status)) + " </div>\n  <div class=\"col-md-2\"><small><code>" + item._id + "</code></small></div>\n  <div class=\"col-md-5\">" + item.title + "</div>\n  <div class=\"col-md-1\">" + item.category + "</div>\n  <div class=\"col-md-1 text-right\">" + (genDateTag(item.created_at)) + "</div>\n  <div class=\"col-md-1 text-right\">" + (genDateTag(item.updated_at)) + "</div>\n  <div class=\"col-md-1\">" + item.attempts + "</div></div></a>";
+        }
+
       });
     }
 

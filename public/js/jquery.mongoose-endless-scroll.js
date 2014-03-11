@@ -9,8 +9,13 @@ MongooseEndlessScroll = (function() {
   DIRECTION_PREV = "before";
 
   DEFAULTS = {
+    itemsToKeep: null,
     inflowPixels: 50,
-    intervalFrequency: 250
+    intervalFrequency: 250,
+    autoStart: true,
+    formatItem: function(item) {
+      return "<a href=\"/tickets/" + item._id + "\" class=\"list-group-item\" id=\"" + item._id + "\">\n  <div class=\"row\"><div class=\"col-md-1\">\n    <span class=\"label label-success\">" + item.status + "</span>\n  </div>\n  <div class=\"col-md-2\"><small><code>" + item._id + "</code></small></div>\n  <div class=\"col-md-5\">" + item.title + "</div>\n  <div class=\"col-md-1\">" + item.category + "</div>\n  <div class=\"col-md-1 text-right\"><small title=\"2014-03-07T09:11:34.813Z\" class=\"muted timeago\">" + item.created_at + "</small></div>\n  <div class=\"col-md-1 text-right\"><small title=\"2014-03-07T09:11:52.074Z\" class=\"muted timeago\">" + item.updated_at + "</small></div>\n  <div class=\"col-md-1\">" + item.attempts + "</div></div></a>";
+    }
   };
 
   function MongooseEndlessScroll(scope, options) {
@@ -44,8 +49,12 @@ MongooseEndlessScroll = (function() {
       });
     };
     $(document).ready(function() {
-      return scrollListener();
+      scrollListener();
+      if (_this.options.autoStart) {
+        return _this.fetchNext();
+      }
     });
+    return;
   }
 
   MongooseEndlessScroll.prototype.fetchNext = function() {
@@ -67,11 +76,13 @@ MongooseEndlessScroll = (function() {
   MongooseEndlessScroll.prototype.fetch = function(data) {
     var ajaxOptions,
       _this = this;
+    console.log("[jquery.mongoose-endless-scroll::fetch] ");
+    console.dir(data);
     if (this.isFecthing) {
       console.log("[jquery.mongoose-endless-scroll::fetch] in fetching");
       return;
     }
-    if (data[DIRECTION_NEXT] === this.downmonstId || data[DIRECTION_PREV] === this.upmonstId) {
+    if ((data[DIRECTION_NEXT] === this.downmonstId) || (data[DIRECTION_PREV] === this.upmonstId)) {
       console.log("[jquery.mongoose-endless-scroll::fetch] reach boundary");
       return;
     }
@@ -81,18 +92,27 @@ MongooseEndlessScroll = (function() {
       url: this.options.serviceUrl,
       data: data,
       success: function(res, textStatus) {
-        var currentDirection;
-        console.log("[jquery.mongoose-endless-scroll::receive] textStatus:" + textStatus + ", res:");
-        console.dir(res);
-        console.dir(data);
+        var currentDirection, diff, item, pos;
         _this.isFecthing = false;
         currentDirection = data.after != null ? DIRECTION_NEXT : DIRECTION_PREV;
-        console.log("[jquery.mongoose-endless-scroll::receive] currentDirection:" + currentDirection);
+        res.results || (res.results = []);
+        pos = 0;
+        while (pos < res.results.length) {
+          item = res.results[pos];
+          if (~_this.ids.indexOf(item._id)) {
+            console.log("[jquery.mongoose-endless-scroll::remove duplicate] id:" + item._id);
+            res.results.splice(pos, 1);
+          } else {
+            ++pos;
+          }
+        }
         if (!(Array.isArray(res.results) && res.results.length)) {
           if (currentDirection === DIRECTION_NEXT) {
             _this.downmonstId = data.after;
+            _this.elLoadingNext.hide();
           } else {
             _this.upmonstId = data.before;
+            _this.elLoadingPrev.hide();
           }
           return;
         }
@@ -102,6 +122,9 @@ MongooseEndlessScroll = (function() {
         } else {
           _this.renderTopPartial();
         }
+        if (_this.options.itemsToKeep > 0 && (diff = _this.ids.length - _this.options.itemsToKeep) > 0) {
+          _this.clearRedundancy(diff, currentDirection);
+        }
       },
       error: function(jqXHR, textStatus, err) {
         console.log("[jquery.mongoose-endless-scroll::error] err:" + err);
@@ -110,6 +133,24 @@ MongooseEndlessScroll = (function() {
       }
     };
     $.ajax(ajaxOptions);
+  };
+
+  MongooseEndlessScroll.prototype.clearRedundancy = function(count, direction) {
+    var id;
+    console.log("[jquery.mongoose-endless-scroll::clearRedundancy] count:" + count + ", direction:" + direction);
+    while (count > 0) {
+      id = direction === DIRECTION_NEXT ? this.ids.shift() : this.ids.pop();
+      delete this.idToData[id];
+      $("#" + id).remove();
+      --count;
+    }
+    if (direction === DIRECTION_NEXT) {
+      this.elLoadingPrev.show();
+      this.topmostId = null;
+    } else {
+      this.elLoadingNext.show();
+      this.bottomostId = null;
+    }
   };
 
   MongooseEndlessScroll.prototype.addInResults = function(results, direction) {
@@ -137,10 +178,6 @@ MongooseEndlessScroll = (function() {
     return $("" + this.container.selector + " a").last().attr("id");
   };
 
-  MongooseEndlessScroll.prototype.formatItem = function(item) {
-    return "<a href=\"/tickets/" + item._id + "\" class=\"list-group-item\" id=\"" + item._id + "\">\n  <div class=\"row\"><div class=\"col-md-1\">\n    <span class=\"label label-success\">" + item.status + "</span>\n  </div>\n  <div class=\"col-md-2\"><small><code>" + item._id + "</code></small></div>\n  <div class=\"col-md-5\">" + item.title + "</div>\n  <div class=\"col-md-1\">" + item.category + "</div>\n  <div class=\"col-md-1 text-right\"><small title=\"2014-03-07T09:11:34.813Z\" class=\"muted timeago\">" + item.created_at + "</small></div>\n  <div class=\"col-md-1 text-right\"><small title=\"2014-03-07T09:11:52.074Z\" class=\"muted timeago\">" + item.updated_at + "</small></div>\n  <div class=\"col-md-1\">" + item.attempts + "</div></div></a>";
-  };
-
   MongooseEndlessScroll.prototype.renderTopPartial = function() {
     var pos, topmostId, _results;
     topmostId = this.getDisplayedTopmostId();
@@ -150,7 +187,7 @@ MongooseEndlessScroll = (function() {
     }
     _results = [];
     while (pos > -1) {
-      this.container.prepend(this.formatItem(this.idToData[this.ids[pos]]));
+      this.container.prepend(this.options.formatItem(this.idToData[this.ids[pos]]));
       _results.push(--pos);
     }
     return _results;
@@ -165,33 +202,10 @@ MongooseEndlessScroll = (function() {
     }
     _results = [];
     while (pos < this.ids.length) {
-      this.container.append(this.formatItem(this.idToData[this.ids[pos]]));
+      this.container.append(this.options.formatItem(this.idToData[this.ids[pos]]));
       _results.push(++pos);
     }
     return _results;
-  };
-
-  MongooseEndlessScroll.prototype.content = function(fireSequence, pageSequence, scrollDirection) {
-    var options;
-    console.log("[jquery.mongoose-endless-scroll::content] %j:, serviceUrl:%j", arguments, this.serviceUrl);
-    options = {
-      dataType: "json",
-      url: this.serviceUrl,
-      data: {},
-      success: function(data, textStatus) {
-        console.log("[jquery.mongoose-endless-scroll::getJSON] data:");
-        return console.dir(data);
-      }
-    };
-    return $.ajax(options);
-  };
-
-  MongooseEndlessScroll.prototype.callback = function(fireSequence, pageSequence, scrollDirection) {
-    return console.log("[jquery.mongoose-endless-scroll::callback] %j:", arguments);
-  };
-
-  MongooseEndlessScroll.prototype.ceaseFire = function(fireSequence, pageSequence, scrollDirection) {
-    return false;
   };
 
   return MongooseEndlessScroll;
