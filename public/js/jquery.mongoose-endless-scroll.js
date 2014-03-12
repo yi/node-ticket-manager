@@ -4,15 +4,20 @@ var MongooseEndlessScroll;
 MongooseEndlessScroll = (function() {
   var DEFAULTS, DIRECTION_DOWN, DIRECTION_UP;
 
-  DIRECTION_DOWN = "after";
-
   DIRECTION_UP = "before";
+
+  DIRECTION_DOWN = "after";
 
   DEFAULTS = {
     itemsToKeep: null,
     inflowPixels: 50,
     intervalFrequency: 250,
     autoStart: true,
+    htmlLoading: "Loading...",
+    htmlEnableScrollUp: "&uarr; More",
+    htmlEnableScrollDown: "&darr; More",
+    htmlDisableScrollUp: "~ No More ~",
+    htmlDisableScrollDown: "~ No More ~",
     formatItem: function(item) {
       return "<a href=\"/tickets/" + item._id + "\" class=\"list-group-item\" id=\"" + item._id + "\">\n  <div class=\"row\"><div class=\"col-md-1\">\n    <span class=\"label label-success\">" + item.status + "</span>\n  </div>\n  <div class=\"col-md-2\"><small><code>" + item._id + "</code></small></div>\n  <div class=\"col-md-5\">" + item.title + "</div>\n  <div class=\"col-md-1\">" + item.category + "</div>\n  <div class=\"col-md-1 text-right\"><small title=\"2014-03-07T09:11:34.813Z\" class=\"muted timeago\">" + item.created_at + "</small></div>\n  <div class=\"col-md-1 text-right\"><small title=\"2014-03-07T09:11:52.074Z\" class=\"muted timeago\">" + item.updated_at + "</small></div>\n  <div class=\"col-md-1\">" + item.attempts + "</div></div></a>";
     }
@@ -22,19 +27,19 @@ MongooseEndlessScroll = (function() {
     var _this = this;
     this.options = $.extend({}, DEFAULTS, options);
     this.container = $(options.container);
-    this.elLoadingPrev = this.options.elLoadingPrev;
-    this.elLoadingPrev.click(function() {
+    this.elControlUp = this.options.elControlUp;
+    this.elControlUp.click(function() {
       return _this.fetchPrev();
     });
-    this.elLoadingNext = this.options.elLoadingNext;
-    this.elLoadingNext.click(function() {
+    this.elControlDown = this.options.elControlDown;
+    this.elControlDown.click(function() {
       return _this.fetchNext();
     });
-    this.upmonstId = null;
+    this.topmostId = null;
     this.downmonstId = null;
     this.idToData = {};
     this.ids = [];
-    this.isFecthing = false;
+    this.showLoading(false);
     console.log("[jquery.mongoose-endless-scroll::options]");
     console.dir(options);
     $(document).ready(function() {
@@ -59,6 +64,18 @@ MongooseEndlessScroll = (function() {
     this.fetch(data);
   };
 
+  MongooseEndlessScroll.prototype.showLoading = function(val) {
+    console.log("[jquery.mongoose-endless-scroll::@topmostId:" + this.topmostId + ", @bottomostId:" + this.bottomostId + "]");
+    this.isFecthing = Boolean(val);
+    if (this.isFecthing) {
+      this.elControlDown.html(this.options.htmlLoading);
+      return this.elControlUp.html(this.options.htmlLoading);
+    } else {
+      this.elControlUp.html(this.topmostId ? this.options.htmlDisableScrollUp : this.options.htmlEnableScrollUp);
+      return this.elControlDown.html(this.bottomostId ? this.options.htmlDisableScrollDown : this.options.htmlEnableScrollDown);
+    }
+  };
+
   MongooseEndlessScroll.prototype.fetch = function(data) {
     var ajaxOptions,
       _this = this;
@@ -66,21 +83,19 @@ MongooseEndlessScroll = (function() {
       console.log("[jquery.mongoose-endless-scroll::fetch] in fetching");
       return;
     }
-    debugger;
-    if ((data[DIRECTION_DOWN] === this.downmonstId) || (data[DIRECTION_UP] === this.upmonstId)) {
+    if ((data[DIRECTION_DOWN] === this.downmonstId) || (data[DIRECTION_UP] === this.topmostId)) {
       console.log("[jquery.mongoose-endless-scroll::fetch] reach boundary");
       return;
     }
-    this.isFecthing = true;
+    this.showLoading(true);
     ajaxOptions = {
       dataType: "json",
       url: this.options.serviceUrl,
       data: data,
       success: function(res, textStatus) {
         var currentDirection, diff, item, pos;
-        _this.isFecthing = false;
+        _this.showLoading(false);
         currentDirection = data[DIRECTION_DOWN] != null ? DIRECTION_DOWN : DIRECTION_UP;
-        debugger;
         res.results || (res.results = []);
         pos = 0;
         while (pos < res.results.length) {
@@ -95,9 +110,12 @@ MongooseEndlessScroll = (function() {
         if (!(Array.isArray(res.results) && res.results.length)) {
           if (currentDirection === DIRECTION_DOWN) {
             _this.downmonstId = data[DIRECTION_DOWN];
+            _this.elControlDown.html(_this.options.htmlDisableScrollDown);
           } else {
-            _this.upmonstId = data[DIRECTION_UP];
+            _this.topmostId = data[DIRECTION_UP];
+            _this.elControlUp.html(_this.options.htmlDisableScrollUp);
           }
+          console.log("[jquery.mongoose-endless-scroll::reach boundary] @topmostId:" + _this.topmostId + ", @downmonstId:" + _this.downmonstId);
           return;
         }
         _this.addInResults(res.results, currentDirection);
@@ -113,7 +131,7 @@ MongooseEndlessScroll = (function() {
       error: function(jqXHR, textStatus, err) {
         console.log("[jquery.mongoose-endless-scroll::error] err:" + err);
         _this.container.trigger("mescroll_error", err);
-        _this.isFecthing = false;
+        _this.showLoading(false);
       }
     };
     $.ajax(ajaxOptions);
@@ -130,8 +148,10 @@ MongooseEndlessScroll = (function() {
     }
     if (direction === DIRECTION_DOWN) {
       this.topmostId = null;
+      this.showLoading(false);
     } else {
       this.bottomostId = null;
+      this.showLoading(false);
     }
   };
 

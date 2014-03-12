@@ -1,15 +1,21 @@
 
 class MongooseEndlessScroll
 
-  DIRECTION_DOWN = "after"
-
   DIRECTION_UP = "before"
+
+  DIRECTION_DOWN = "after"
 
   DEFAULTS =
     itemsToKeep:       null
     inflowPixels:      50
     intervalFrequency: 250
     autoStart : true
+    htmlLoading : "Loading..."
+    htmlEnableScrollUp : "&uarr; More"
+    htmlEnableScrollDown : "&darr; More"
+    htmlDisableScrollUp : "~ No More ~"
+    htmlDisableScrollDown : "~ No More ~"
+
     formatItem : (item)->
       """
       <a href="/tickets/#{item._id}" class="list-group-item" id="#{item._id}">
@@ -29,12 +35,12 @@ class MongooseEndlessScroll
     @options = $.extend({}, DEFAULTS , options)
     @container = $(options.container)
 
-    @elLoadingPrev = @options.elLoadingPrev
-    @elLoadingPrev.click => @fetchPrev()
-    @elLoadingNext = @options.elLoadingNext
-    @elLoadingNext.click => @fetchNext()
+    @elControlUp = @options.elControlUp
+    @elControlUp.click => @fetchPrev()
+    @elControlDown = @options.elControlDown
+    @elControlDown.click => @fetchNext()
 
-    @upmonstId = null
+    @topmostId = null
     @downmonstId = null
 
     #kv hash, key: record id, value: record data
@@ -43,7 +49,8 @@ class MongooseEndlessScroll
     # ordered record id
     @ids = []
 
-    @isFecthing = false
+    @showLoading false
+    #@isFecthing = false
     console.log "[jquery.mongoose-endless-scroll::options]"
     console.dir options
 
@@ -79,6 +86,18 @@ class MongooseEndlessScroll
     @fetch data
     return
 
+  showLoading : (val)->
+    console.log "[jquery.mongoose-endless-scroll::@topmostId:#{@topmostId}, @bottomostId:#{@bottomostId}]"
+
+    @isFecthing = Boolean(val)
+    if @isFecthing
+      @elControlDown.html(@options.htmlLoading)
+      @elControlUp.html(@options.htmlLoading)
+    else
+      @elControlUp.html(if @topmostId then @options.htmlDisableScrollUp else @options.htmlEnableScrollUp)
+      @elControlDown.html(if @bottomostId then @options.htmlDisableScrollDown else @options.htmlEnableScrollDown)
+
+
   fetch : (data)->
     #console.log "[jquery.mongoose-endless-scroll::fetch] "
     #console.dir data
@@ -87,14 +106,15 @@ class MongooseEndlessScroll
       console.log "[jquery.mongoose-endless-scroll::fetch] in fetching"
       return
 
-    debugger
+    #debugger
 
-    if (data[DIRECTION_DOWN] is @downmonstId) || (data[DIRECTION_UP] is @upmonstId)
+    if (data[DIRECTION_DOWN] is @downmonstId) || (data[DIRECTION_UP] is @topmostId)
       console.log "[jquery.mongoose-endless-scroll::fetch] reach boundary"
       return
 
     # lock on
-    @isFecthing = true
+    @showLoading true
+    #@isFecthing = true
 
     ajaxOptions =
       dataType : "json"
@@ -106,13 +126,14 @@ class MongooseEndlessScroll
         #console.dir data
 
         # release lock
-        @isFecthing = false
+        @showLoading false
+        #@isFecthing = false
 
         # figure out direction
         currentDirection = if data[DIRECTION_DOWN]? then DIRECTION_DOWN else DIRECTION_UP
         #console.log "[jquery.mongoose-endless-scroll::receive] currentDirection:#{currentDirection}"
 
-        debugger
+        #debugger
 
         res.results or= []
         pos = 0
@@ -129,10 +150,14 @@ class MongooseEndlessScroll
           # reach boundary
           if currentDirection is DIRECTION_DOWN
             @downmonstId = data[DIRECTION_DOWN]
-            #@elLoadingNext.hide()
+            @elControlDown.html @options.htmlDisableScrollDown
+            #@elControlDown.hide()
           else
-            @upmonstId = data[DIRECTION_UP]
-            #@elLoadingPrev.hide()
+            @topmostId = data[DIRECTION_UP]
+            @elControlUp.html @options.htmlDisableScrollUp
+            #@elControlUp.hide()
+          console.log "[jquery.mongoose-endless-scroll::reach boundary] @topmostId:#{@topmostId}, @downmonstId:#{@downmonstId}"
+
           return
 
         @addInResults(res.results, currentDirection)
@@ -149,7 +174,8 @@ class MongooseEndlessScroll
       error : (jqXHR, textStatus, err)=>
         console.log "[jquery.mongoose-endless-scroll::error] err:#{err}"
         @container.trigger("mescroll_error", err)
-        @isFecthing = false
+        @showLoading false
+        #@isFecthing = false
         return
 
     $.ajax ajaxOptions
@@ -169,11 +195,13 @@ class MongooseEndlessScroll
 
     # show the more handler
     if direction is DIRECTION_DOWN
-      #@elLoadingPrev.show()
+      #@elControlUp.show()
       @topmostId = null
+      @showLoading(false)
     else
-      #@elLoadingNext.show()
+      #@elControlDown.show()
       @bottomostId = null
+      @showLoading(false)
     return
 
   addInResults : (results, direction)->
