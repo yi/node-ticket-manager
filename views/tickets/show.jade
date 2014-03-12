@@ -75,7 +75,8 @@ block content
   h2
     small Content
   .well
-    pre=JSON.stringify(ticket.content)
+    pre
+      !=helper.syntaxHighlight(JSON.stringify(ticket.content,undefined, 4))
 
   h2
     small History
