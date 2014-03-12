@@ -29,35 +29,33 @@ MongooseEndlessScroll = (function() {
     this.container = $(options.container);
     this.elControlUp = this.options.elControlUp;
     this.elControlUp.click(function() {
-      return _this.fetchPrev();
+      return _this.fetchUp();
     });
     this.elControlDown = this.options.elControlDown;
     this.elControlDown.click(function() {
-      return _this.fetchNext();
+      return _this.fetchDown();
     });
     this.topmostId = null;
-    this.downmonstId = null;
+    this.bottonmostId = null;
     this.idToData = {};
     this.ids = [];
     this.showLoading(false);
-    console.log("[jquery.mongoose-endless-scroll::options]");
-    console.dir(options);
     $(document).ready(function() {
       if (_this.options.autoStart) {
-        return _this.fetchNext();
+        return _this.fetchDown();
       }
     });
     return;
   }
 
-  MongooseEndlessScroll.prototype.fetchNext = function() {
+  MongooseEndlessScroll.prototype.fetchDown = function() {
     var data;
     data = {};
     data[DIRECTION_DOWN] = this.ids[this.ids.length - 1];
     this.fetch(data);
   };
 
-  MongooseEndlessScroll.prototype.fetchPrev = function() {
+  MongooseEndlessScroll.prototype.fetchUp = function() {
     var data;
     data = {};
     data[DIRECTION_UP] = this.ids[0];
@@ -65,14 +63,33 @@ MongooseEndlessScroll = (function() {
   };
 
   MongooseEndlessScroll.prototype.showLoading = function(val) {
-    console.log("[jquery.mongoose-endless-scroll::@topmostId:" + this.topmostId + ", @bottomostId:" + this.bottomostId + "]");
     this.isFecthing = Boolean(val);
     if (this.isFecthing) {
       this.elControlDown.html(this.options.htmlLoading);
       return this.elControlUp.html(this.options.htmlLoading);
     } else {
-      this.elControlUp.html(this.topmostId ? this.options.htmlDisableScrollUp : this.options.htmlEnableScrollUp);
-      return this.elControlDown.html(this.bottomostId ? this.options.htmlDisableScrollDown : this.options.htmlEnableScrollDown);
+      if (this.topmostId) {
+        this.elControlUp.html(this.options.htmlDisableScrollUp);
+        if (this.elControlUp.is(":visible")) {
+          this.elControlUp.fadeOut();
+        }
+      } else {
+        this.elControlUp.html(this.options.htmlEnableScrollUp);
+        if (!this.elControlUp.is(":visible")) {
+          this.elControlUp.fadeIn();
+        }
+      }
+      if (this.bottonmostId) {
+        this.elControlDown.html(this.options.htmlDisableScrollDown);
+        if (this.elControlDown.is(":visible")) {
+          return this.elControlDown.fadeOut();
+        }
+      } else {
+        this.elControlDown.html(this.options.htmlEnableScrollDown);
+        if (!this.elControlDown.is(":visible")) {
+          return this.elControlDown.fadeIn();
+        }
+      }
     }
   };
 
@@ -83,7 +100,7 @@ MongooseEndlessScroll = (function() {
       console.log("[jquery.mongoose-endless-scroll::fetch] in fetching");
       return;
     }
-    if ((data[DIRECTION_DOWN] === this.downmonstId) || (data[DIRECTION_UP] === this.topmostId)) {
+    if ((data[DIRECTION_DOWN] === this.bottonmostId) || (data[DIRECTION_UP] === this.topmostId)) {
       console.log("[jquery.mongoose-endless-scroll::fetch] reach boundary");
       return;
     }
@@ -95,13 +112,13 @@ MongooseEndlessScroll = (function() {
       success: function(res, textStatus) {
         var currentDirection, diff, item, pos;
         _this.showLoading(false);
-        currentDirection = data[DIRECTION_DOWN] != null ? DIRECTION_DOWN : DIRECTION_UP;
+        currentDirection = data[DIRECTION_UP] != null ? DIRECTION_UP : DIRECTION_DOWN;
         res.results || (res.results = []);
         pos = 0;
         while (pos < res.results.length) {
           item = res.results[pos];
           if (~_this.ids.indexOf(item._id)) {
-            console.log("[jquery.mongoose-endless-scroll::remove duplicate] id:" + item._id);
+            console.log("[jquery.mongoose-endless-scroll::remove duplicate] id:" + item._id + " title:" + item.title);
             res.results.splice(pos, 1);
           } else {
             ++pos;
@@ -109,13 +126,12 @@ MongooseEndlessScroll = (function() {
         }
         if (!(Array.isArray(res.results) && res.results.length)) {
           if (currentDirection === DIRECTION_DOWN) {
-            _this.downmonstId = data[DIRECTION_DOWN];
-            _this.elControlDown.html(_this.options.htmlDisableScrollDown);
+            _this.bottonmostId = data[DIRECTION_DOWN];
           } else {
             _this.topmostId = data[DIRECTION_UP];
-            _this.elControlUp.html(_this.options.htmlDisableScrollUp);
           }
-          console.log("[jquery.mongoose-endless-scroll::reach boundary] @topmostId:" + _this.topmostId + ", @downmonstId:" + _this.downmonstId);
+          console.log("[jquery.mongoose-endless-scroll::reach boundary] @topmostId:" + _this.topmostId + ", @bottonmostId:" + _this.bottonmostId);
+          _this.showLoading(false);
           return;
         }
         _this.addInResults(res.results, currentDirection);
@@ -138,10 +154,10 @@ MongooseEndlessScroll = (function() {
   };
 
   MongooseEndlessScroll.prototype.clearRedundancy = function(count, direction) {
-    var id;
-    console.log("[jquery.mongoose-endless-scroll::clearRedundancy] count:" + count + ", direction:" + direction);
+    var id, item;
     while (count > 0) {
       id = direction === DIRECTION_DOWN ? this.ids.shift() : this.ids.pop();
+      item = this.idToData[id];
       delete this.idToData[id];
       $("#" + id).remove();
       --count;
@@ -150,16 +166,13 @@ MongooseEndlessScroll = (function() {
       this.topmostId = null;
       this.showLoading(false);
     } else {
-      this.bottomostId = null;
+      this.bottonmostId = null;
       this.showLoading(false);
     }
   };
 
   MongooseEndlessScroll.prototype.addInResults = function(results, direction) {
     var id, result, _i, _len;
-    if (direction === DIRECTION_UP) {
-      results.reverse();
-    }
     for (_i = 0, _len = results.length; _i < _len; _i++) {
       result = results[_i];
       id = result._id;
@@ -184,7 +197,7 @@ MongooseEndlessScroll = (function() {
   };
 
   MongooseEndlessScroll.prototype.renderTopPartial = function() {
-    var pos, topmostId, _results;
+    var id, item, pos, topmostId, _results;
     topmostId = this.getDisplayedTopmostId();
     pos = this.ids.indexOf(topmostId) - 1;
     if (pos < -1) {
@@ -192,22 +205,28 @@ MongooseEndlessScroll = (function() {
     }
     _results = [];
     while (pos > -1) {
-      this.container.prepend(this.options.formatItem(this.idToData[this.ids[pos]]));
+      id = this.ids[pos];
+      item = this.idToData[id];
+      this.container.prepend(this.options.formatItem(item));
       _results.push(--pos);
     }
     return _results;
   };
 
   MongooseEndlessScroll.prototype.renderBottomPartial = function() {
-    var bottomostId, pos, _results;
-    bottomostId = this.getDisplayedBottommostId();
-    pos = this.ids.indexOf(bottomostId);
-    if (pos < -1) {
+    var bottonmostId, id, item, pos, _results;
+    bottonmostId = this.getDisplayedBottommostId();
+    pos = this.ids.indexOf(bottonmostId);
+    if (pos <= -1) {
       pos = 0;
+    } else {
+      pos += 1;
     }
     _results = [];
     while (pos < this.ids.length) {
-      this.container.append(this.options.formatItem(this.idToData[this.ids[pos]]));
+      id = this.ids[pos];
+      item = this.idToData[id];
+      this.container.append(this.options.formatItem(item));
       _results.push(++pos);
     }
     return _results;

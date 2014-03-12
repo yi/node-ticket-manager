@@ -36,12 +36,12 @@ class MongooseEndlessScroll
     @container = $(options.container)
 
     @elControlUp = @options.elControlUp
-    @elControlUp.click => @fetchPrev()
+    @elControlUp.click => @fetchUp()
     @elControlDown = @options.elControlDown
-    @elControlDown.click => @fetchNext()
+    @elControlDown.click => @fetchDown()
 
     @topmostId = null
-    @downmonstId = null
+    @bottonmostId = null
 
     #kv hash, key: record id, value: record data
     @idToData = {}
@@ -50,26 +50,23 @@ class MongooseEndlessScroll
     @ids = []
 
     @showLoading false
-    #@isFecthing = false
-    console.log "[jquery.mongoose-endless-scroll::options]"
-    console.dir options
 
     #scrollListener = =>
       #$(window).one "scroll", =>
         #if ($(window).scrollTop() >= $(document).height() - $(window).height() - @options.inflowPixels)
-          #@fetchNext()
+          #@fetchDown()
         #else if $(window).scrollTop() <= @options.inflowPixels
-          #@fetchPrev()
+          #@fetchUp()
         #setTimeout scrollListener, @options.intervalFrequency
 
     $(document).ready =>
       #scrollListener()
-      if @options.autoStart then @fetchNext()
+      if @options.autoStart then @fetchDown()
 
     return
 
-  fetchNext : ->
-    #console.log "[jquery.mongoose-endless-scroll::fetchNext] @options.inflowPixels:#{@options.inflowPixels}"
+  fetchDown : ->
+    #console.log "[jquery.mongoose-endless-scroll::fetchDown] @options.inflowPixels:#{@options.inflowPixels}"
     #$(window).scrollTop($(document).height() - $(window).height() - @options.inflowPixels)
 
     data = {}
@@ -77,8 +74,8 @@ class MongooseEndlessScroll
     @fetch data
     return
 
-  fetchPrev: ->
-    #console.log "[jquery.mongoose-endless-scroll::fetchPrev] "
+  fetchUp: ->
+    #console.log "[jquery.mongoose-endless-scroll::fetchUp] "
     #$(window).scrollTop(@options.inflowPixels)
 
     data = {}
@@ -87,15 +84,31 @@ class MongooseEndlessScroll
     return
 
   showLoading : (val)->
-    console.log "[jquery.mongoose-endless-scroll::@topmostId:#{@topmostId}, @bottomostId:#{@bottomostId}]"
+    #console.log "[jquery.mongoose-endless-scroll::showLoading]@topmostId:#{@topmostId}, @bottonmostId:#{@bottonmostId}]"
 
     @isFecthing = Boolean(val)
     if @isFecthing
       @elControlDown.html(@options.htmlLoading)
       @elControlUp.html(@options.htmlLoading)
     else
-      @elControlUp.html(if @topmostId then @options.htmlDisableScrollUp else @options.htmlEnableScrollUp)
-      @elControlDown.html(if @bottomostId then @options.htmlDisableScrollDown else @options.htmlEnableScrollDown)
+      if @topmostId
+        @elControlUp.html(@options.htmlDisableScrollUp)
+        #console.log "[jquery.mongoose-endless-scroll::method]@elControlUp.is(:visible) #{@elControlUp.is(":visible")}"
+
+        @elControlUp.fadeOut() if @elControlUp.is(":visible")
+      else
+        @elControlUp.html(@options.htmlEnableScrollUp)
+        @elControlUp.fadeIn() unless @elControlUp.is(":visible")
+
+      if @bottonmostId
+        @elControlDown.html(@options.htmlDisableScrollDown)
+        @elControlDown.fadeOut() if @elControlDown.is(":visible")
+      else
+        @elControlDown.html(@options.htmlEnableScrollDown)
+        @elControlDown.fadeIn() unless @elControlDown.is(":visible")
+
+      #@elControlUp.html(if @topmostId then @options.htmlDisableScrollUp else @options.htmlEnableScrollUp)
+      #@elControlDown.html(if @bottonmostId then @options.htmlDisableScrollDown else @options.htmlEnableScrollDown)
 
 
   fetch : (data)->
@@ -106,9 +119,7 @@ class MongooseEndlessScroll
       console.log "[jquery.mongoose-endless-scroll::fetch] in fetching"
       return
 
-    #debugger
-
-    if (data[DIRECTION_DOWN] is @downmonstId) || (data[DIRECTION_UP] is @topmostId)
+    if (data[DIRECTION_DOWN] is @bottonmostId) || (data[DIRECTION_UP] is @topmostId)
       console.log "[jquery.mongoose-endless-scroll::fetch] reach boundary"
       return
 
@@ -121,26 +132,19 @@ class MongooseEndlessScroll
       url : @options.serviceUrl
       data : data
       success : (res, textStatus)=>
-        #console.log "[jquery.mongoose-endless-scroll::receive] textStatus:#{textStatus}, res:"
-        #console.dir res
-        #console.dir data
-
         # release lock
         @showLoading false
         #@isFecthing = false
 
         # figure out direction
-        currentDirection = if data[DIRECTION_DOWN]? then DIRECTION_DOWN else DIRECTION_UP
-        #console.log "[jquery.mongoose-endless-scroll::receive] currentDirection:#{currentDirection}"
-
-        #debugger
+        currentDirection = if data[DIRECTION_UP]? then DIRECTION_UP else DIRECTION_DOWN
 
         res.results or= []
         pos = 0
         while pos < res.results.length
           item = res.results[pos]
           if ~@ids.indexOf(item._id)
-            console.log "[jquery.mongoose-endless-scroll::remove duplicate] id:#{item._id}"
+            console.log "[jquery.mongoose-endless-scroll::remove duplicate] id:#{item._id} title:#{item.title}"
             res.results.splice pos, 1
           else
             ++pos
@@ -149,15 +153,11 @@ class MongooseEndlessScroll
         unless Array.isArray(res.results) and res.results.length
           # reach boundary
           if currentDirection is DIRECTION_DOWN
-            @downmonstId = data[DIRECTION_DOWN]
-            @elControlDown.html @options.htmlDisableScrollDown
-            #@elControlDown.hide()
+            @bottonmostId = data[DIRECTION_DOWN]
           else
             @topmostId = data[DIRECTION_UP]
-            @elControlUp.html @options.htmlDisableScrollUp
-            #@elControlUp.hide()
-          console.log "[jquery.mongoose-endless-scroll::reach boundary] @topmostId:#{@topmostId}, @downmonstId:#{@downmonstId}"
-
+          console.log "[jquery.mongoose-endless-scroll::reach boundary] @topmostId:#{@topmostId}, @bottonmostId:#{@bottonmostId}"
+          @showLoading false
           return
 
         @addInResults(res.results, currentDirection)
@@ -175,19 +175,21 @@ class MongooseEndlessScroll
         console.log "[jquery.mongoose-endless-scroll::error] err:#{err}"
         @container.trigger("mescroll_error", err)
         @showLoading false
-        #@isFecthing = false
         return
 
     $.ajax ajaxOptions
     return
 
   clearRedundancy : (count, direction)->
-    console.log "[jquery.mongoose-endless-scroll::clearRedundancy] count:#{count}, direction:#{direction}"
+    #console.log "[jquery.mongoose-endless-scroll::clearRedundancy] count:#{count}, direction:#{direction}"
 
     #debugger
     while(count > 0)
       # remove on the opposite side
       id = if direction is DIRECTION_DOWN then @ids.shift() else @ids.pop()
+
+      item = @idToData[id]
+      #console.log "[jquery.mongoose-endless-scroll::clearRedundancy] item:#{item.title}"
 
       delete @idToData[id]
       $("##{id}").remove()
@@ -200,18 +202,22 @@ class MongooseEndlessScroll
       @showLoading(false)
     else
       #@elControlDown.show()
-      @bottomostId = null
+      @bottonmostId = null
       @showLoading(false)
+
+    #console.log "[jquery.mongoose-endless-scroll::clearRedundancy] after clear, ids:\n#{@ids.map((id)=>@idToData[id].title).join("\n")}"
     return
 
   addInResults : (results, direction)->
-    results.reverse() if direction is DIRECTION_UP
+    #results.reverse() if direction is DIRECTION_UP
     for result in results
       id = result._id
       continue if ~@ids.indexOf(id)
       if direction is DIRECTION_DOWN
+        #console.log "[jquery.mongoose-endless-scroll::addInResults] push: #{result.title}"
         @ids.push id
       else
+        #console.log "[jquery.mongoose-endless-scroll::addInResults] unshift: #{result.title}"
         @ids.unshift id
       @idToData[id] = result
     return
@@ -225,15 +231,24 @@ class MongooseEndlessScroll
     pos = @ids.indexOf(topmostId) - 1
     if pos < -1 then pos = @ids.length - 1
     while(pos > -1)
-      @container.prepend(@options.formatItem(@idToData[@ids[pos]]))
+      id = @ids[pos]
+      item = @idToData[id]
+      #console.log "[jquery.mongoose-endless-scroll::renderTopPartial] item:#{item.title}"
+      @container.prepend(@options.formatItem(item))
       -- pos
 
   renderBottomPartial : ()->
-    bottomostId = @getDisplayedBottommostId()
-    pos = @ids.indexOf(bottomostId)
-    if pos < -1 then pos = 0
+    bottonmostId = @getDisplayedBottommostId()
+    pos = @ids.indexOf(bottonmostId)
+    if pos <= -1
+      pos = 0
+    else
+      pos += 1 # render from (not include) current displayer bottom most one
     while(pos < @ids.length)
-      @container.append(@options.formatItem(@idToData[@ids[pos]]))
+      id = @ids[pos]
+      item = @idToData[id]
+      #console.log "[jquery.mongoose-endless-scroll::renderBottomPartial] item:#{item.title}"
+      @container.append(@options.formatItem(item))
       ++pos
 
 (($) ->

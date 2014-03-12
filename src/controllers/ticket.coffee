@@ -19,7 +19,18 @@ exports.index = (req, res, next)->
 exports.list = (req, res, next)->
   debuglog "list req.query: %j", req.query
 
-  Ticket.paginate(req.query || {}, '_id').select('-comments -content').execPagination (err, result)->
+  query = Ticket.paginate(req.query || {}, '_id').select('-comments -content')
+
+  # NOTE:
+  #   is it necessary to manually sort for before/after. or did I miss something?
+  # ty 2014-03-12
+
+  if req.query.before?
+    query.sort _id : "asc"
+  else
+    query.sort _id : "desc"
+
+  query.execPagination (err, result)->
     return next err if err?
     result.success = true
     console.log "[ticket::list] dump result:"
