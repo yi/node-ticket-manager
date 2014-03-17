@@ -39,6 +39,33 @@ exports.list = (req, res, next)->
   return
 
 
+exports.count = (req, res, next)->
+  result = {}
+  Ticket.count (err, count)->
+    next err if err?
+    result.all = count
+    Ticket.count {status: STATUS.PENDING}, (err, count)->
+      next err if err?
+      result[STATUS.PENDING] = count
+      Ticket.count {status: STATUS.PROCESSING}, (err, count)->
+        next err if err?
+        result[STATUS.PROCESSING] = count
+        Ticket.count {status: STATUS.COMPLETE}, (err, count)->
+          next err if err?
+          result[STATUS.COMPLETE] = count
+          Ticket.count {status: STATUS.ABANDON}, (err, count)->
+            next err if err?
+            result[STATUS.ABANDON] = count
+            res.json result
+            return
+          return
+        return
+      return
+    return
+  return
+
+
+
 # GET /tickets/:id
 exports.show = (req, res, next)->
   debuglog "show"

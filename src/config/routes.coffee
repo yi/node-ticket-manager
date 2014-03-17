@@ -16,6 +16,7 @@ module.exports = (app, passport, auth)->
   app.get '/', controller.index
   app.get '/tickets', controller.index
   app.get '/tickets/list.json', controller.list
+  app.get '/tickets/count.json', controller.count
   app.get '/tickets/:id', controller.show
   app.post '/tickets/:id/abandon', controller.abandon
   app.post '/tickets/:id/giveup', controller.giveup

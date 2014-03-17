@@ -18,6 +18,8 @@ MongooseEndlessScroll = (function() {
     htmlEnableScrollDown: "&darr; More",
     htmlDisableScrollUp: "~ No More ~",
     htmlDisableScrollDown: "~ No More ~",
+    itemElementName: "a",
+    paginationKey: "_id",
     formatItem: function(item) {
       return "<a href=\"/tickets/" + item._id + "\" class=\"list-group-item\" id=\"" + item._id + "\">\n  <div class=\"row\"><div class=\"col-md-1\">\n    <span class=\"label label-success\">" + item.status + "</span>\n  </div>\n  <div class=\"col-md-2\"><small><code>" + item._id + "</code></small></div>\n  <div class=\"col-md-5\">" + item.title + "</div>\n  <div class=\"col-md-1\">" + item.category + "</div>\n  <div class=\"col-md-1 text-right\"><small title=\"2014-03-07T09:11:34.813Z\" class=\"muted timeago\">" + item.created_at + "</small></div>\n  <div class=\"col-md-1 text-right\"><small title=\"2014-03-07T09:11:52.074Z\" class=\"muted timeago\">" + item.updated_at + "</small></div>\n  <div class=\"col-md-1\">" + item.attempts + "</div></div></a>";
     }
@@ -49,16 +51,24 @@ MongooseEndlessScroll = (function() {
   }
 
   MongooseEndlessScroll.prototype.fetchDown = function() {
-    var data;
+    var data, id, record;
     data = {};
-    data[DIRECTION_DOWN] = this.ids[this.ids.length - 1];
+    id = this.ids[this.ids.length - 1];
+    record = this.idToData[id];
+    if (record != null) {
+      data[DIRECTION_DOWN] = record[this.options.paginationKey];
+    }
     this.fetch(data);
   };
 
   MongooseEndlessScroll.prototype.fetchUp = function() {
-    var data;
+    var data, id, record;
     data = {};
-    data[DIRECTION_UP] = this.ids[0];
+    id = this.ids[0];
+    record = this.idToData[id];
+    if (record != null) {
+      data[DIRECTION_UP] = record[this.options.paginationKey];
+    }
     this.fetch(data);
   };
 
@@ -143,6 +153,9 @@ MongooseEndlessScroll = (function() {
         if (_this.options.itemsToKeep > 0 && (diff = _this.ids.length - _this.options.itemsToKeep) > 0) {
           _this.clearRedundancy(diff, currentDirection);
         }
+        if (typeof _this.options["onChange"] === "function") {
+          _this.options["onChange"]();
+        }
       },
       error: function(jqXHR, textStatus, err) {
         console.log("[jquery.mongoose-endless-scroll::error] err:" + err);
@@ -189,32 +202,30 @@ MongooseEndlessScroll = (function() {
   };
 
   MongooseEndlessScroll.prototype.getDisplayedTopmostId = function() {
-    return $("" + this.container.selector + " a").first().attr("id");
+    return $("" + this.container.selector + " " + this.options.itemElementName).first().attr("id");
   };
 
   MongooseEndlessScroll.prototype.getDisplayedBottommostId = function() {
-    return $("" + this.container.selector + " a").last().attr("id");
+    return $("" + this.container.selector + " " + this.options.itemElementName).last().attr("id");
   };
 
   MongooseEndlessScroll.prototype.renderTopPartial = function() {
-    var id, item, pos, topmostId, _results;
+    var id, item, pos, topmostId;
     topmostId = this.getDisplayedTopmostId();
     pos = this.ids.indexOf(topmostId) - 1;
     if (pos < -1) {
       pos = this.ids.length - 1;
     }
-    _results = [];
     while (pos > -1) {
       id = this.ids[pos];
       item = this.idToData[id];
       this.container.prepend(this.options.formatItem(item));
-      _results.push(--pos);
+      --pos;
     }
-    return _results;
   };
 
   MongooseEndlessScroll.prototype.renderBottomPartial = function() {
-    var bottonmostId, id, item, pos, _results;
+    var bottonmostId, id, item, pos;
     bottonmostId = this.getDisplayedBottommostId();
     pos = this.ids.indexOf(bottonmostId);
     if (pos <= -1) {
@@ -222,14 +233,12 @@ MongooseEndlessScroll = (function() {
     } else {
       pos += 1;
     }
-    _results = [];
     while (pos < this.ids.length) {
       id = this.ids[pos];
       item = this.idToData[id];
       this.container.append(this.options.formatItem(item));
-      _results.push(++pos);
+      ++pos;
     }
-    return _results;
   };
 
   return MongooseEndlessScroll;

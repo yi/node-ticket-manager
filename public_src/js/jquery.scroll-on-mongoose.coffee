@@ -15,6 +15,8 @@ class MongooseEndlessScroll
     htmlEnableScrollDown : "&darr; More"
     htmlDisableScrollUp : "~ No More ~"
     htmlDisableScrollDown : "~ No More ~"
+    itemElementName : "a"
+    paginationKey : "_id"
 
     formatItem : (item)->
       """
@@ -70,7 +72,9 @@ class MongooseEndlessScroll
     #$(window).scrollTop($(document).height() - $(window).height() - @options.inflowPixels)
 
     data = {}
-    data[DIRECTION_DOWN] = @ids[@ids.length - 1]
+    id = @ids[@ids.length - 1]
+    record = @idToData[id]
+    data[DIRECTION_DOWN] = record[@options.paginationKey] if record?
     @fetch data
     return
 
@@ -79,7 +83,9 @@ class MongooseEndlessScroll
     #$(window).scrollTop(@options.inflowPixels)
 
     data = {}
-    data[DIRECTION_UP] = @ids[0]
+    id =  @ids[0]
+    record = @idToData[id]
+    data[DIRECTION_UP] = record[@options.paginationKey] if record?
     @fetch data
     return
 
@@ -169,6 +175,9 @@ class MongooseEndlessScroll
         if @options.itemsToKeep > 0 and (diff = @ids.length - @options.itemsToKeep) > 0
           @clearRedundancy(diff, currentDirection)
 
+        # fire callback
+        @options["onChange"]() if(typeof(@options["onChange"]) is "function")
+
         return
 
       error : (jqXHR, textStatus, err)=>
@@ -222,9 +231,9 @@ class MongooseEndlessScroll
       @idToData[id] = result
     return
 
-  getDisplayedTopmostId : -> $("#{@container.selector} a").first().attr("id")
+  getDisplayedTopmostId : -> $("#{@container.selector} #{@options.itemElementName}").first().attr("id")
 
-  getDisplayedBottommostId : -> $("#{@container.selector} a").last().attr("id")
+  getDisplayedBottommostId : -> $("#{@container.selector} #{@options.itemElementName}").last().attr("id")
 
   renderTopPartial : ()->
     topmostId = @getDisplayedTopmostId()
@@ -236,6 +245,7 @@ class MongooseEndlessScroll
       #console.log "[jquery.mongoose-endless-scroll::renderTopPartial] item:#{item.title}"
       @container.prepend(@options.formatItem(item))
       -- pos
+    return
 
   renderBottomPartial : ()->
     bottonmostId = @getDisplayedBottommostId()
@@ -250,6 +260,8 @@ class MongooseEndlessScroll
       #console.log "[jquery.mongoose-endless-scroll::renderBottomPartial] item:#{item.title}"
       @container.append(@options.formatItem(item))
       ++pos
+
+    return
 
 (($) ->
   $.fn.mongooseEndlessScroll = (options) ->

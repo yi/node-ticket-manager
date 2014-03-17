@@ -5,13 +5,20 @@ block pageHeader
     h1 Tickets
   ul.nav.nav-tabs
     li.active
-      a All
+      a All &nbsp;
+        #count-all.badge ?
     li
-      a In Processing
+      a Pending &nbsp;
+        #count-pending.badge ?
     li
-      a Completed
+      a In Processing &nbsp;
+        #count-processing.badge ?
     li
-      a Abandoned
+      a Completed &nbsp;
+        #count-completed.badge ?
+    li
+      a Abandoned &nbsp;
+        #count-abandoned.badge ?
 
 block content
   .panel.panel-default
@@ -51,7 +58,7 @@ block content
       a#loading-next.list-group-item.text-center
         i.fa.fa-chevron-down=" More Older Tickets"
 
-  script(src='/js/jquery.mongoose-endless-scroll.js?#{VERSION}', type='text/javascript')
+  script(src='/js/jquery.scroll-on-mongoose.js?#{VERSION}', type='text/javascript')
   script(type='text/javascript').
     if(jQuery){
       var TICKET_STATUS_TO_INFO_TYPE = {
@@ -82,6 +89,9 @@ block content
         htmlEnableScrollUp : "<i class='fa fa-chevron-up'></i> More Newerer Tickets",
         htmlEnableScrollDown :  "<i class='fa fa-chevron-down'></i> More Older Tickets",
         htmlLoading : "<i class='fa fa-spinner fa-spin'></i> Loading...",
+        onChange : function(){
+          if($(".timeago").length > 0) $(".timeago").prettyDate({"interval":false});
+        },
         formatItem: function(item) {
           return "<a href=\"/tickets/" + item._id + "\" class=\"list-group-item\" id=\"" + item._id + "\">\n  <div class=\"row\"><div class=\"col-md-1\">" + (genLabelByStatus(item.status)) + " </div>\n  <div class=\"col-md-2\"><small><code>" + item._id + "</code></small></div>\n  <div class=\"col-md-5\">" + item.title + "</div>\n  <div class=\"col-md-1\">" + item.category + "</div>\n  <div class=\"col-md-1 text-right\">" + (genDateTag(item.created_at)) + "</div>\n  <div class=\"col-md-1 text-right\">" + (genDateTag(item.updated_at)) + "</div>\n  <div class=\"col-md-1\">" + item.attempts + "</div></div></a>";
         }
@@ -89,6 +99,16 @@ block content
       });
     }
 
+  script(type='text/javascript').
+    $(document).ready(function() {
+      setInterval(function(){
+        $.get("/tickets/count.json", function(data){
+          for(var key in data){
+            $("#count-"+key).text(data[key]);
+          }
+        })
+      }, 3000)
+    });
 
 
 
