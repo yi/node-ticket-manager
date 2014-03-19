@@ -30,6 +30,10 @@ exports.list = (req, res, next)->
   else
     query.sort _id : "desc"
 
+  if req.query.status?
+    query.where
+      status : req.query.status
+
   query.execPagination (err, result)->
     return next err if err?
     result.success = true

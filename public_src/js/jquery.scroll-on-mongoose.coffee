@@ -45,6 +45,8 @@ class MongooseEndlessScroll
     @topmostId = null
     @bottonmostId = null
 
+    @query = {}
+
     #kv hash, key: record id, value: record data
     @idToData = {}
 
@@ -67,11 +69,24 @@ class MongooseEndlessScroll
 
     return
 
+  toString : ->
+    "[MongooseEndlessScroll]"
+
+  empty : ->
+    @container.empty()
+    @topmostId = null
+    @bottonmostId = null
+    @idToData = {}
+    @ids = []
+    @showLoading false
+    return
+
+
   fetchDown : ->
     #console.log "[jquery.mongoose-endless-scroll::fetchDown] @options.inflowPixels:#{@options.inflowPixels}"
     #$(window).scrollTop($(document).height() - $(window).height() - @options.inflowPixels)
 
-    data = {}
+    data = $.extend {}, @query
     id = @ids[@ids.length - 1]
     record = @idToData[id]
     data[DIRECTION_DOWN] = record[@options.paginationKey] if record?
@@ -82,7 +97,7 @@ class MongooseEndlessScroll
     #console.log "[jquery.mongoose-endless-scroll::fetchUp] "
     #$(window).scrollTop(@options.inflowPixels)
 
-    data = {}
+    data = $.extend {}, @query
     id =  @ids[0]
     record = @idToData[id]
     data[DIRECTION_UP] = record[@options.paginationKey] if record?

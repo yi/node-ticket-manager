@@ -5,19 +5,19 @@ block pageHeader
     h1 Tickets
   ul.nav.nav-tabs
     li.active
-      a All &nbsp;
+      a#list-all(data-toggle="tab") All &nbsp;
         #count-all.badge ?
     li
-      a Pending &nbsp;
+      a#list-pending(data-toggle="tab") Pending &nbsp;
         #count-pending.badge ?
     li
-      a In Processing &nbsp;
+      a#list-processing(data-toggle="tab") In Processing &nbsp;
         #count-processing.badge ?
     li
-      a Completed &nbsp;
+      a#list-completed(data-toggle="tab") Completed &nbsp;
         #count-completed.badge ?
     li
-      a Abandoned &nbsp;
+      a#list-abandoned(data-toggle="tab") Abandoned &nbsp;
         #count-abandoned.badge ?
 
 block content
@@ -79,7 +79,7 @@ block content
         return "<span class='label label-" + (TICKET_STATUS_TO_INFO_TYPE[status] || 'default') + "'>" + status + "</span>";
       }
 
-      $(window).mongooseEndlessScroll({
+      var mscroller = $(window).mongooseEndlessScroll({
         itemsToKeep: 15,
         serviceUrl : "/tickets/list.json",
         container : $("#list"),
@@ -97,20 +97,32 @@ block content
         }
 
       });
+
+      console.log("mscroller:"+mscroller);
+      console.dir(mscroller);
+
+      // refresh ticket counts
+      $(document).ready(function() {
+        setInterval(function(){
+          $.get("/tickets/count.json", function(data){
+            for(var key in data){
+              $("#count-"+key).text(data[key]);
+            }
+          })
+        }, 3000)
+      });
+
+      // listen to tab switch
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        console.log((e.target.id || "").substr(5)) // activated tab
+        console.log(e.relatedTarget.id) // previous tab
+        mscroller.empty();
+        var status = (e.target.id || "").substr(5);
+        mscroller.query = status === "all" ? {} : {"status" : status};
+        mscroller.fetchDown();
+      })
+
     }
-
-  script(type='text/javascript').
-    $(document).ready(function() {
-      setInterval(function(){
-        $.get("/tickets/count.json", function(data){
-          for(var key in data){
-            $("#count-"+key).text(data[key]);
-          }
-        })
-      }, 3000)
-    });
-
-
 
 
 

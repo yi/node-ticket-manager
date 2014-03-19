@@ -39,6 +39,7 @@ MongooseEndlessScroll = (function() {
     });
     this.topmostId = null;
     this.bottonmostId = null;
+    this.query = {};
     this.idToData = {};
     this.ids = [];
     this.showLoading(false);
@@ -50,9 +51,22 @@ MongooseEndlessScroll = (function() {
     return;
   }
 
+  MongooseEndlessScroll.prototype.toString = function() {
+    return "[MongooseEndlessScroll]";
+  };
+
+  MongooseEndlessScroll.prototype.empty = function() {
+    this.container.empty();
+    this.topmostId = null;
+    this.bottonmostId = null;
+    this.idToData = {};
+    this.ids = [];
+    this.showLoading(false);
+  };
+
   MongooseEndlessScroll.prototype.fetchDown = function() {
     var data, id, record;
-    data = {};
+    data = $.extend({}, this.query);
     id = this.ids[this.ids.length - 1];
     record = this.idToData[id];
     if (record != null) {
@@ -63,7 +77,7 @@ MongooseEndlessScroll = (function() {
 
   MongooseEndlessScroll.prototype.fetchUp = function() {
     var data, id, record;
-    data = {};
+    data = $.extend({}, this.query);
     id = this.ids[0];
     record = this.idToData[id];
     if (record != null) {
