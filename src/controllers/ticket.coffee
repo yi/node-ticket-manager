@@ -3,6 +3,8 @@ mongoose = require('mongoose')
 Ticket = mongoose.model('Ticket')
 STATUS = require "../enums/ticket_status"
 
+MAX_ATTEMPTS_BEFORE_ABANDON = 16
+
 debuglog = require("debug")("ticketman:controller:ticket")
 
 # list tickets
@@ -172,7 +174,10 @@ exports.giveup = (req, res, next)->
         success : false
         error : "missing ticket of #{id}"
 
-    Ticket.changeStatus req.body, STATUS.PENDING, (err, ticket)->
+    # abandon ticket if exceed max attempts
+    targetStatus = if ticket.attempts < MAX_ATTEMPTS_BEFORE_ABANDON then STATUS.PENDING else STATUS.ABANDON
+
+    Ticket.changeStatus req.body, targetStatus, (err, ticket)->
       return next(err) if err?
       return next() unless ticket?
 
