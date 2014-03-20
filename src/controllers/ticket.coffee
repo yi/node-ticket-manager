@@ -5,6 +5,8 @@ STATUS = require "../enums/ticket_status"
 
 MAX_ATTEMPTS_BEFORE_ABANDON = 16
 
+MAX_TIME_ALLOWED_FOR_PROCESSING = 1000 * 60 * 60
+
 debuglog = require("debug")("ticketman:controller:ticket")
 
 # list tickets
@@ -229,5 +231,48 @@ exports.adminComment = (req, res, next)->
     return res.redirect "/tickets/#{id}"
 
   return
+
+# routine: clean up overtime processing tickets
+setInterval ()->
+  #debuglog "clean up overtime processing tickets"
+  query =
+    $and: [
+      {status : STATUS.PROCESSING}
+      {updated_at : $lt : Date.now() - MAX_TIME_ALLOWED_FOR_PROCESSING}
+    ]
+
+  Ticket.findOne query, (err, ticket)->
+    if err?
+      console.error "ERROR [ticket::interval::cleanup] error:#{err}"
+      return
+
+    unless ticket?
+      #debuglog "no ticket"
+      return
+
+    #debuglog "[interval::cleanup] ticket:"
+    #console.dir ticket
+
+    if ticket.attempts < MAX_ATTEMPTS_BEFORE_ABANDON
+      content = "ticket processing overtime, set back to retry."
+      targetStatus = STATUS.PENDING
+    else
+      content = "ticket exceeds max attemption, so abandon"
+      targetStatus = STATUS.ABANDON
+
+    ticket.comments.push
+      name : "admin"
+      kind : "danger"
+      content : content
+      date : Date.now()
+    ticket.status = targetStatus
+    ticket.save (err)->
+      #debuglog "change to ticket applied"
+      return
+    return
+, 2000
+
+
+
 
 
