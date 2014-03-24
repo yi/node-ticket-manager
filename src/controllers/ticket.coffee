@@ -25,15 +25,6 @@ exports.list = (req, res, next)->
 
   query = Ticket.paginate(req.query || {}, '_id').select('-comments -content')
 
-  # NOTE:
-  #   is it necessary to manually sort for before/after. or did I miss something?
-  # ty 2014-03-12
-
-  if req.query.before?
-    query.sort _id : "asc"
-  else
-    query.sort _id : "desc"
-
   if req.query.status?
     query.where
       status : req.query.status

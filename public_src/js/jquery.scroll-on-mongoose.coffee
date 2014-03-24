@@ -1,9 +1,11 @@
 
 class MongooseEndlessScroll
 
-  DIRECTION_UP = "before"
+  DIRECTION_UP = "after"
+  #DIRECTION_UP = "before"
 
-  DIRECTION_DOWN = "after"
+  DIRECTION_DOWN = "before"
+  #DIRECTION_DOWN = "after"
 
   DEFAULTS =
     itemsToKeep:       null

@@ -4,9 +4,9 @@ var MongooseEndlessScroll;
 MongooseEndlessScroll = (function() {
   var DEFAULTS, DIRECTION_DOWN, DIRECTION_UP;
 
-  DIRECTION_UP = "before";
+  DIRECTION_UP = "after";
 
-  DIRECTION_DOWN = "after";
+  DIRECTION_DOWN = "before";
 
   DEFAULTS = {
     itemsToKeep: null,
