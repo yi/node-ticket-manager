@@ -33,6 +33,8 @@ set :use_sudo, false
 # 终端的类型
 set :default_run_options, :pty => true
 
+set :normalize_asset_timestamps, false
+#
 #set :deploy_to, '/var/app/ticketman/'
 set :deploy_to, '/var/www/apps/ticketman/'
 
