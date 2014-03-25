@@ -1,7 +1,7 @@
 require 'capistrano/ext/multistage'
 #require 'bundler/capistrano'
 
-set :stages,          %w(stage166 production)
+set :stages,          %w(stage166 r3 gama)
 set :default_stage,   "stage166"
 
 set :application, "ticketman"

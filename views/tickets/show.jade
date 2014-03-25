@@ -35,10 +35,24 @@ block content
     .col-md-3.input-lg=ticket.attempts
 
 
-    .col-md-10.text-right
+    .col-md-9.text-right
       button.btn.btn-default(data-toggle="modal", data-target="#myModal")
         i.fa.fa-edit
         !=" Add Comment"
+
+
+    .col-md-1.text-right
+      if ticket.status == "processing"
+        form.abandon(action="/tickets/#{ticket.id}/giveup", method="POST")
+          input(type="hidden", name="name", value="admin")
+          input(type="hidden", name="reason", value="admin give up this ticket on web interface")
+          button.btn.btn-warning(type='submit')
+            i.fa.fa-trash-o
+            !=" Give Up"
+      else
+        button.btn.btn-warning(disabled="true")
+          i.fa.fa-trash-o
+          !=" Give Up"
 
     .col-md-1.text-right
 
@@ -61,7 +75,8 @@ block content
   h2
     small Content
   .well
-    pre=JSON.stringify(ticket.content)
+    pre
+      !=helper.syntaxHighlight(JSON.stringify(ticket.content,undefined, 4))
 
   h2
     small History
@@ -70,9 +85,9 @@ block content
     each comment in ticket.comments
       li.list-group-item
         .row
-          .col-md-1
+          .col-md-2.text-right
             span.label(class="label-#{comment.kind}")=comment.name
-          .col-md-9=comment.content
+          .col-md-8=comment.content
           .col-md-2
             !=helper.genDateTag(comment.date)
 

@@ -5,6 +5,8 @@ mongoose = require "mongoose"
 Schema = mongoose.Schema
 _ = require 'underscore'
 timestamps = require "mongoose-times"
+paginator = require 'mongoose-paginator'
+
 
 ## Schema
 schemaStructure =
@@ -38,6 +40,10 @@ WorkerSchema.path('desc').validate (val)->
   return val.length
 , 'Desc cannot be blank'
 
+WorkerSchema.plugin paginator,
+  limit: 10
+  defaultKey: '_id'
+  direction: -1
 
 ## Pre-save hook
 WorkerSchema.pre 'save', (next)->

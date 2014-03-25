@@ -5,13 +5,20 @@ block pageHeader
     h1 Tickets
   ul.nav.nav-tabs
     li.active
-      a All
+      a#list-all(data-toggle="tab") All &nbsp;
+        #count-all.badge ?
     li
-      a In Processing
+      a#list-pending(data-toggle="tab") Pending &nbsp;
+        #count-pending.badge ?
     li
-      a Completed
+      a#list-processing(data-toggle="tab") In Processing &nbsp;
+        #count-processing.badge ?
     li
-      a Abandoned
+      a#list-completed(data-toggle="tab") Completed &nbsp;
+        #count-completed.badge ?
+    li
+      a#list-abandoned(data-toggle="tab") Abandoned &nbsp;
+        #count-abandoned.badge ?
 
 block content
   .panel.panel-default
@@ -25,7 +32,12 @@ block content
         .col-md-1.text-right updated
         .col-md-1 Attempts
 
+
     .list-group
+      a#loading-prev.list-group-item.text-center
+        i.fa.fa-chevron-up=" More Newer Tickets"
+
+    #list.list-group
       each ticket in tickets
         a.list-group-item(href="/tickets/#{ticket.id}")
           .row
@@ -42,10 +54,75 @@ block content
               !=helper.genDateTag(ticket.updated_at)
             .col-md-1=ticket.attempts
 
+    .list-group
+      a#loading-next.list-group-item.text-center
+        i.fa.fa-chevron-down=" More Older Tickets"
 
+  script(src='/js/jquery.scroll-on-mongoose.js?#{VERSION}', type='text/javascript')
+  script(type='text/javascript').
+    if(jQuery){
+      var TICKET_STATUS_TO_INFO_TYPE = {
+        pending: 'default',
+        processing: 'primary',
+        completed: 'success',
+        abandoned: 'danger'
+      };
 
+      var genDateTag = function(date) {
+        var dateStr, isoStr;
+        isoStr = date instanceof Date ? date.toISOString() : date;
+        dateStr = date instanceof Date ? date.toDateString() : date;
+        return "<small title='" + isoStr + "' class='muted timeago'>" + dateStr + "</small>";
+      };
 
+      var genLabelByStatus = function(status) {
+        return "<span class='label label-" + (TICKET_STATUS_TO_INFO_TYPE[status] || 'default') + "'>" + status + "</span>";
+      }
 
+      var mscroller = $(window).mongooseEndlessScroll({
+        itemsToKeep: 15,
+        serviceUrl : "/tickets/list.json",
+        container : $("#list"),
+        intervalFrequency: 200,
+        elControlUp : $("#loading-prev"),
+        elControlDown : $("#loading-next"),
+        htmlEnableScrollUp : "<i class='fa fa-chevron-up'></i> More Newerer Tickets",
+        htmlEnableScrollDown :  "<i class='fa fa-chevron-down'></i> More Older Tickets",
+        htmlLoading : "<i class='fa fa-spinner fa-spin'></i> Loading...",
+        onChange : function(){
+          if($(".timeago").length > 0) $(".timeago").prettyDate({"interval":false});
+        },
+        formatItem: function(item) {
+          return "<a href=\"/tickets/" + item._id + "\" class=\"list-group-item\" id=\"" + item._id + "\">\n  <div class=\"row\"><div class=\"col-md-1\">" + (genLabelByStatus(item.status)) + " </div>\n  <div class=\"col-md-2\"><small><code>" + item._id + "</code></small></div>\n  <div class=\"col-md-5\">" + item.title + "</div>\n  <div class=\"col-md-1\">" + item.category + "</div>\n  <div class=\"col-md-1 text-right\">" + (genDateTag(item.created_at)) + "</div>\n  <div class=\"col-md-1 text-right\">" + (genDateTag(item.updated_at)) + "</div>\n  <div class=\"col-md-1\">" + item.attempts + "</div></div></a>";
+        }
+
+      });
+
+      console.log("mscroller:"+mscroller);
+      console.dir(mscroller);
+
+      // refresh ticket counts
+      $(document).ready(function() {
+        setInterval(function(){
+          $.get("/tickets/count.json", function(data){
+            for(var key in data){
+              $("#count-"+key).text(data[key]);
+            }
+          })
+        }, 3000)
+      });
+
+      // listen to tab switch
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        console.log((e.target.id || "").substr(5)) // activated tab
+        console.log(e.relatedTarget.id) // previous tab
+        mscroller.empty();
+        var status = (e.target.id || "").substr(5);
+        mscroller.query = status === "all" ? {} : {"status" : status};
+        mscroller.fetchDown();
+      })
+
+    }
 
 
 

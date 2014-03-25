@@ -49,6 +49,13 @@ fs              = require 'fs'
 path            = require 'path'
 util            = require 'util'
 {exec, spawn}   = require 'child_process'
+{print} = require 'util'
+{spawn, exec} = require 'child_process'
+
+bold = '\\033[0;1m'
+green = '\\033[0;32m'
+reset = '\\033[0m'
+red = '\\033[0;31m'
 
 task 'generate:test', 'Generate a mocha test file', (opts) ->
   name = process.argv[3..][0]
@@ -71,4 +78,79 @@ task 'generate:test', 'Generate a mocha test file', (opts) ->
   console.log "#{LOG_NAME_TAG_INFO} generate test file #{targetFileName}."
   process.exit(0)
   return
+
+
+walk = (dir, done) ->
+  results = []
+  fs.readdir dir, (err, list) ->
+    return done(err, []) if err
+    pending = list.length
+    return done(null, results) unless pending
+    for name in list
+      file = "#{dir}/#{name}"
+      try
+        stat = fs.statSync file
+      catch err
+        stat = null
+      if stat?.isDirectory()
+        walk file, (err, res) ->
+          results.push name for name in res
+          done(null, results) unless --pending
+      else
+        results.push file
+        done(null, results) unless --pending
+
+log = (message, color, explanation) -> console.log color + message + reset + ' ' + (explanation or '')
+
+launch = (cmd, options=[], callback) ->
+  app = spawn cmd, options
+  app.stdout.pipe(process.stdout)
+  app.stderr.pipe(process.stderr)
+  app.on 'exit', (status) -> callback?() if status is 0
+
+
+build = (watch, callback) ->
+  if typeof watch is 'function'
+    callback = watch
+    watch = false
+
+  options = ['-c', '-b', '-o', 'public/js', 'public_src/js']
+  options.unshift '-w' if watch
+  launch 'coffee', options, callback
+
+
+mocha = (options, callback) ->
+  if typeof options is 'function'
+    callback = options
+    options = []
+
+  launch 'mocha', options, callback
+
+docco = (callback) ->
+  walk 'src', (err, files) -> launch 'docco', files, callback
+
+task 'generate:docs', 'generate documentation', -> docco()
+
+task 'coffee:build', 'compile source', -> build -> log ":)", green
+
+task 'coffee:watch', 'compile source', -> build true
+
+task 'test', 'run tests', -> build -> mocha -> log ":)", green
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

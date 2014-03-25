@@ -1,7 +1,7 @@
 {
   "name": "ticketman",
-  "description": "a simple ticket manager contians a centeral ticket dispatcher and distributed workers. This module is written in NodeJS, runing on MongoDB",
-  "version": "0.1.5",
+  "description": "A simple pull-based job/ticket system contians a centeral ticket dispatcher and distributed workers. This system is written in NodeJS, runing on MongoDB",
+  "version": "0.2.3",
   "homepage": "https://github.com/yi/node-ticket-manager",
   "author": {
     "name": "yi",
@@ -39,7 +39,7 @@
     "mongoose": "3.8.6",
     "underscore": "1.5.2",
     "mongoose-times": "0.1.0",
-    "mongoose-paginator": "0.1.2",
+    "mongoose-paginator": "0.2.2",
     "commander": ">=1.0.1",
     "udid": "0.1.4",
     "debug": "0.7.4",

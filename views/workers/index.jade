@@ -39,33 +39,27 @@ block content
             .col-md-1.text-right
               !=helper.genDateTag(worker.updated_at)
 
-    #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
-      form.login(action="/workers/new", method="post")
-        .modal-dialog
-          .modal-content
-            .modal-header
-              button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
-              h4#myModalLabel.modal-title Create new worker
-            .modal-body
 
-              .form-group
-                .controls
-                  input.input-lg.form-control#name(type='text', name="name", placeholder='Worker Name')
+  #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+    form.login(action="/workers/new", method="post")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            h4#myModalLabel.modal-title Create new worker
+          .modal-body
 
-              .form-group
-                .controls
-                  input.input-lg.form-control#desc(type='text', name="desc", placeholder='Description')
+            .form-group
+              .controls
+                input.input-lg.form-control#name(type='text', name="name", placeholder='Worker Name')
 
-            .modal-footer
-              button.btn.btn-default(type='button', data-dismiss='modal') Close
-              button.btn.btn-primary(type='submit') Save changes
+            .form-group
+              .controls
+                input.input-lg.form-control#desc(type='text', name="desc", placeholder='Description')
 
-
-
-
-
-
-
+          .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') Close
+            button.btn.btn-primary(type='submit') Save changes
 
 
 

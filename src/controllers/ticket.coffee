@@ -3,6 +3,10 @@ mongoose = require('mongoose')
 Ticket = mongoose.model('Ticket')
 STATUS = require "../enums/ticket_status"
 
+MAX_ATTEMPTS_BEFORE_ABANDON = 16
+
+MAX_TIME_ALLOWED_FOR_PROCESSING = 1000 * 60 * 60
+
 debuglog = require("debug")("ticketman:controller:ticket")
 
 # list tickets
@@ -10,13 +14,56 @@ debuglog = require("debug")("ticketman:controller:ticket")
 # GET /tickets
 exports.index = (req, res, next)->
   debuglog "index"
-  Ticket.find().sort({created_at:'desc'}).exec (err, tickets)->
+  res.render 'tickets/index',
+    title: 'All Tickets'
+    tickets : []
+  return
+
+
+exports.list = (req, res, next)->
+  debuglog "list req.query: %j", req.query
+
+  query = Ticket.paginate(req.query || {}, '_id').select('-comments -content')
+
+  if req.query.status?
+    query.where
+      status : req.query.status
+
+  query.execPagination (err, result)->
     return next err if err?
-    res.render 'tickets/index',
-      title: 'All Tickets'
-      tickets : tickets
+    result.success = true
+    #console.log "[ticket::list] dump result:"
+    #console.dir result
+    res.json result
+  return
+
+
+exports.count = (req, res, next)->
+  result = {}
+  Ticket.count (err, count)->
+    next err if err?
+    result.all = count
+    Ticket.count {status: STATUS.PENDING}, (err, count)->
+      next err if err?
+      result[STATUS.PENDING] = count
+      Ticket.count {status: STATUS.PROCESSING}, (err, count)->
+        next err if err?
+        result[STATUS.PROCESSING] = count
+        Ticket.count {status: STATUS.COMPLETE}, (err, count)->
+          next err if err?
+          result[STATUS.COMPLETE] = count
+          Ticket.count {status: STATUS.ABANDON}, (err, count)->
+            next err if err?
+            result[STATUS.ABANDON] = count
+            res.json result
+            return
+          return
+        return
+      return
     return
   return
+
+
 
 # GET /tickets/:id
 exports.show = (req, res, next)->
@@ -108,7 +155,7 @@ exports.giveup = (req, res, next)->
   req.body.id = id
 
   comment =
-    name: req.worker.name
+    name: req.body.name || req.worker.name
     kind: "danger"
     content : req.body.reason || "#{req.worker.name} fail to process this ticket"
 
@@ -120,7 +167,10 @@ exports.giveup = (req, res, next)->
         success : false
         error : "missing ticket of #{id}"
 
-    Ticket.changeStatus req.body, STATUS.PENDING, (err, ticket)->
+    # abandon ticket if exceed max attempts
+    targetStatus = if ticket.attempts < MAX_ATTEMPTS_BEFORE_ABANDON then STATUS.PENDING else STATUS.ABANDON
+
+    Ticket.changeStatus req.body, targetStatus, (err, ticket)->
       return next(err) if err?
       return next() unless ticket?
 
@@ -172,5 +222,48 @@ exports.adminComment = (req, res, next)->
     return res.redirect "/tickets/#{id}"
 
   return
+
+# routine: clean up overtime processing tickets
+setInterval ()->
+  #debuglog "clean up overtime processing tickets"
+  query =
+    $and: [
+      {status : STATUS.PROCESSING}
+      {updated_at : $lt : Date.now() - MAX_TIME_ALLOWED_FOR_PROCESSING}
+    ]
+
+  Ticket.findOne query, (err, ticket)->
+    if err?
+      console.error "ERROR [ticket::interval::cleanup] error:#{err}"
+      return
+
+    unless ticket?
+      #debuglog "no ticket"
+      return
+
+    #debuglog "[interval::cleanup] ticket:"
+    #console.dir ticket
+
+    if ticket.attempts < MAX_ATTEMPTS_BEFORE_ABANDON
+      content = "ticket processing overtime, set back to retry."
+      targetStatus = STATUS.PENDING
+    else
+      content = "ticket exceeds max attemption, so abandon"
+      targetStatus = STATUS.ABANDON
+
+    ticket.comments.push
+      name : "admin"
+      kind : "danger"
+      content : content
+      date : Date.now()
+    ticket.status = targetStatus
+    ticket.save (err)->
+      #debuglog "change to ticket applied"
+      return
+    return
+, 2000
+
+
+
 
 

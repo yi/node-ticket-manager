@@ -2,13 +2,13 @@
 mongoose = require('mongoose')
 Worker = mongoose.model('Worker')
 
-# list tickets
+# list worker
 # GET /workers
 exports.index = (req, res, next)->
-  Worker.find().sort({created_at:'desc'}).exec (err, workers)->
+
+  Worker.find (err, workers)->
     return next err if err?
     res.render 'workers/index',
-      title: 'All Workers'
       workers : workers
     return
   return

@@ -3,6 +3,8 @@ head(prefix='og: http://ogp.me/ns# nodejsexpressdemo: http://ogp.me/ns/apps/node
   meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
   meta(name='viewport', content='width=device-width,initial-scale=1')
 
+  //meta(http-equiv="refresh" content="30")
+
   title= APP_NAME
   meta(http-equiv='Content-type', content='text/html;charset=UTF-8')
   meta(name="keywords", content="node.js, express, mongoose, mongodb, stylus demo")
@@ -10,10 +12,13 @@ head(prefix='og: http://ogp.me/ns# nodejsexpressdemo: http://ogp.me/ns/apps/node
 
   link(href='/favicon.ico', rel='shortcut icon', type='image/x-icon')
 
+  script(type='text/javascript', src='/js/jquery-1.11.0.min.js')
+  script(type='text/javascript', src='/js/bootstrap.min.js')
+
   // Application styles
   link(rel='stylesheet', href='/css/bootstrap.min.css')
   // link(rel='stylesheet', href='/css/bootstrap-responsive.min.css')
-  //link(rel='stylesheet', href='/css/app.css')
+  link(rel='stylesheet', href='/css/app.css')
   //
      <link rel="stylesheet" href="/assets/css/application.css">
   //

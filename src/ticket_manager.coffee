@@ -19,6 +19,7 @@ class TicketManager
     assert @host, "missing host"
 
     @basicAuth = basicAuth || DEFAULT_BASIC_AUTH
+    debuglog "[TicketManager.constructor] @name:#{@name}, @host:#{@host}, @basicAuth:%j", @basicAuth
 
   # issue a new ticket
   issue : (title, category, content, callback=SQARSH_CALLBCAK)->
@@ -33,7 +34,7 @@ class TicketManager
         content : content
 
     request options, (err, res, body)->
-      debuglog "err:#{err}, res.statusCode:#{res.statusCode}, body:%j", body
+      debuglog "err:#{err}, res.statusCode:#{if res? then res.statusCode else "n/a"}, body:%j", body
       return callback err if err?
       unless res.statusCode is 200
         return callback(new Error("Network error, res.statusCode:#{res.statusCode}"))
