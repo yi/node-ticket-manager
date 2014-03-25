@@ -27,7 +27,7 @@ exports.authWorker = (req, res, next)->
     return
   return
 
-exports.updateiWorkerAt = (req, res, next) ->
+exports.updateWorkerAt = (req, res, next) ->
   signature = req.headers['ticketman-authenticate']
   workerId = (signature.match(/Ticketman ([^:]+)/) || EMPTY_ARRAY)[1]
 

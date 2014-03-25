@@ -26,7 +26,7 @@ exports.create = (req, res, next)->
     return
   return
 
-exports.updatAt = (req, res, next) ->
+exports.updateAt = (req, res, next) ->
   signature = req.headers['ticketman-authenticate']
   return next(new Error "signature checking failed") unless signature? and signature.indexOf("Ticketman") is 0
 
@@ -34,4 +34,5 @@ exports.updatAt = (req, res, next) ->
   update =
     updated_at: Date.now()
   Worker.findByIdAndUpdate workerId,update, (err,worker) ->
+    return next err if err?
     next()
