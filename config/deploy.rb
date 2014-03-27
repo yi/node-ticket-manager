@@ -1,7 +1,7 @@
 require 'capistrano/ext/multistage'
 #require 'bundler/capistrano'
 
-set :stages,          %w(stage166 r3 gama)
+set :stages,          %w(stage166 r3 gama rmd)
 set :default_stage,   "stage166"
 
 set :application, "ticketman"
@@ -33,6 +33,7 @@ set :use_sudo, false
 # 终端的类型
 set :default_run_options, :pty => true
 
+#set :deploy_to, '/var/www/apps/ticketman_rmd/'
 set :deploy_to, '/var/www/apps/ticketman/'
 
 set :path_to_log, "#{current_path}/log/#{application}.log"
