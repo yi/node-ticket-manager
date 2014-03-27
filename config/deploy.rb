@@ -1,7 +1,7 @@
 require 'capistrano/ext/multistage'
 #require 'bundler/capistrano'
 
-set :stages,          %w(production stage166 r3 gama rmd)
+set :stages,          %w(sample stage166 r3 gama rmd)
 set :default_stage,   "stage166"
 
 set :application, "ticketman"
@@ -36,12 +36,12 @@ set :default_run_options, :pty => true
 set :normalize_asset_timestamps, false
 #
 #set :deploy_to, '/var/app/ticketman/'
-set :deploy_to, '/var/www/apps/ticketman/'
+#set :deploy_to, '/var/www/apps/ticketman/'
 #set :deploy_to, '/var/www/apps/ticketman_rmd/'
 
-set :path_to_log, "#{current_path}/log/#{application}.log"
-set :path_to_pid, "#{current_path}/#{application}.pid"
-set :path_to_main_script, "#{current_path}/lib/server.min.js"
+#set :path_to_log, "#{current_path}/log/#{application}.log"
+#set :path_to_pid, "#{current_path}/#{application}.pid"
+#set :path_to_main_script, "#{current_path}/lib/server.min.js"
 
 namespace :build do
   desc "build production release"
