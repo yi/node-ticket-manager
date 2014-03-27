@@ -1,7 +1,7 @@
 require 'capistrano/ext/multistage'
 #require 'bundler/capistrano'
 
-set :stages,          %w(stage166 r3 gama)
+set :stages,          %w(production stage166 r3 gama rmd)
 set :default_stage,   "stage166"
 
 set :application, "ticketman"
@@ -37,6 +37,7 @@ set :normalize_asset_timestamps, false
 #
 #set :deploy_to, '/var/app/ticketman/'
 set :deploy_to, '/var/www/apps/ticketman/'
+#set :deploy_to, '/var/www/apps/ticketman_rmd/'
 
 set :path_to_log, "#{current_path}/log/#{application}.log"
 set :path_to_pid, "#{current_path}/#{application}.pid"
