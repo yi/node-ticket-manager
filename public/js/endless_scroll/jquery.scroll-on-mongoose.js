@@ -200,6 +200,9 @@ MongooseEndlessScroll = (function() {
 
   MongooseEndlessScroll.prototype.addInResults = function(results, direction) {
     var id, result, _i, _len;
+    if (direction === DIRECTION_UP) {
+      results.reverse();
+    }
     for (_i = 0, _len = results.length; _i < _len; _i++) {
       result = results[_i];
       id = result._id;
