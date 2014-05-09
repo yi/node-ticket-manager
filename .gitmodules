@@ -1,0 +1,3 @@
+[submodule "public_src/js/endless_scroll"]
+	path = public_src/js/endless_scroll
+	url = git@github.com:yi/jquery-scroll-on-mongoose.git
