@@ -10,7 +10,7 @@ MongooseEndlessScroll = (function() {
 
   DEFAULTS = {
     itemsToKeep: null,
-    inflowPixels: 50,
+    inflowPixels: 30,
     intervalFrequency: 250,
     autoStart: true,
     htmlLoading: "Loading...",
@@ -26,10 +26,11 @@ MongooseEndlessScroll = (function() {
   };
 
   function MongooseEndlessScroll(scope, options) {
-    var _this = this;
+    var scrollListener,
+      _this = this;
     this.options = $.extend({}, DEFAULTS, options);
     this.container = $(options.container);
-    this.elControlUp = this.options.elControlUp;
+    this.elControlUp = $(this.options.elControlUp);
     this.elControlUp.click(function() {
       return _this.fetchUp();
     });
@@ -43,7 +44,19 @@ MongooseEndlessScroll = (function() {
     this.idToData = {};
     this.ids = [];
     this.showLoading(false);
+    scrollListener = function() {
+      return $(window).one("scroll", function() {
+        var bottomBoundary;
+        bottomBoundary = $(document).height() - $(window).height() - _this.options.inflowPixels / 2;
+        if ($(window).scrollTop() >= bottomBoundary) {
+          _this.fetchDown();
+          $(window).scrollTop(bottomBoundary - 20);
+        }
+        return setTimeout(scrollListener, _this.options.intervalFrequency);
+      });
+    };
     $(document).ready(function() {
+      scrollListener();
       if (_this.options.autoStart) {
         return _this.fetchDown();
       }
