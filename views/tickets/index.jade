@@ -33,9 +33,9 @@ block content
         .col-md-1 Attempts
 
 
-    .list-group
-      a#loading-prev.list-group-item.text-center
-        i.fa.fa-chevron-up=" More Newer Tickets"
+    //.list-group
+      //a#loading-prev.list-group-item.text-center
+        //i.fa.fa-chevron-up=" More Newer Tickets"
 
     #list.list-group
       each ticket in tickets
@@ -58,7 +58,7 @@ block content
       a#loading-next.list-group-item.text-center
         i.fa.fa-chevron-down=" More Older Tickets"
 
-  script(src='/js/jquery.scroll-on-mongoose.js?#{VERSION}', type='text/javascript')
+  script(src='/js/endless_scroll/jquery.scroll-on-mongoose.js?#{VERSION}', type='text/javascript')
   script(type='text/javascript').
     if(jQuery){
       var TICKET_STATUS_TO_INFO_TYPE = {
@@ -80,11 +80,11 @@ block content
       }
 
       var mscroller = $(window).mongooseEndlessScroll({
-        itemsToKeep: 15,
+        itemsToKeep: -1,
         serviceUrl : "/tickets/list.json",
         container : $("#list"),
         intervalFrequency: 200,
-        elControlUp : $("#loading-prev"),
+        //elControlUp : $("#loading-prev"),
         elControlDown : $("#loading-next"),
         htmlEnableScrollUp : "<i class='fa fa-chevron-up'></i> More Newerer Tickets",
         htmlEnableScrollDown :  "<i class='fa fa-chevron-down'></i> More Older Tickets",

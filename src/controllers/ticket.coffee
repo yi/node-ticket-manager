@@ -32,8 +32,8 @@ exports.list = (req, res, next)->
   query.execPagination (err, result)->
     return next err if err?
     result.success = true
-    #console.log "[ticket::list] dump result:"
-    #console.dir result
+    console.log "[ticket::list] dump result:"
+    console.dir result
     res.json result
   return
 
