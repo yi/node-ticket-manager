@@ -25,7 +25,7 @@ module.exports = (app, passport, auth)->
   app.post '/api/tickets/new', controller.create
 
   app.put '/api/tickets/assign', m.authWorker, controller.assign
-  app.put '/api/tickets/:id/comment', m.authWorker, controller.comment
+  app.put '/api/tickets/:id/comment', m.authWorker, m.updateWorkerAt, controller.comment
   app.put '/api/tickets/:id/complete', m.authWorker, controller.complete
   app.put '/api/tickets/:id/giveup', m.authWorker,  controller.giveup
 
@@ -33,5 +33,3 @@ module.exports = (app, passport, auth)->
   controller = require "../controllers/worker"
   app.get '/workers.:format?', controller.index
   app.post '/workers/new.:format?', controller.create
-
-

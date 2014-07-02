@@ -4,6 +4,7 @@ config/deploy/*.rb
 build/
 npm-debug.log
 dist/
+log/
 .DS_Store
 *.swo
 public_src/js/endless_scroll

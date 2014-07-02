@@ -26,3 +26,11 @@ exports.authWorker = (req, res, next)->
       next(new Error "signature mismatch")
     return
   return
+
+exports.updateWorkerAt = (req, res, next) ->
+  signature = req.headers['ticketman-authenticate']
+  workerId = (signature.match(/Ticketman ([^:]+)/) || EMPTY_ARRAY)[1]
+
+  Worker.findByIdAndUpdate workerId, {updated_at: Date.now()}, (err, worker) ->
+    return next err if err?
+    next()
