@@ -18,8 +18,7 @@ exports.authWorker = (req, res, next)->
   Worker.findById workerId, (err, worker)->
     return next err if err?
     return next(new Error "missing worker #{workerId}") unless worker
-
-    if oauth.verify(signature, req.method, req.url, req.body, worker['consumer_secret'])
+    if oauth.verify(signature, req.method, req.url, req.body, worker['consumer_secret']) and not worker.trashed_at?
       req.worker = worker
       next()
     else

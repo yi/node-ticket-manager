@@ -8,7 +8,7 @@ exports.index = (req, res, next)->
 
   Worker.find (err, workers)->
     return next err if err?
-    console.dir  workers
+    #console.dir  workers
     res.render 'workers/index',
       workers : workers
     return
@@ -39,4 +39,11 @@ exports.updateAt = (req, res, next) ->
     next()
 
 exports.trashed = (req, res, next) ->
-  return next err if err?
+  workerId = req.body.worker_id
+  Worker.findById workerId, (err, worker) ->
+    return next err if err?
+    return next 404 unless worker
+
+    worker[if worker.trashed_at? then "untrash" else "trash"] (err) ->
+      return next err if err?
+      res.redirect "/workers"

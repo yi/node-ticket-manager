@@ -6,7 +6,7 @@ Schema = mongoose.Schema
 _ = require 'underscore'
 timestamps = require "mongoose-times"
 paginator = require 'mongoose-paginator'
-trashablea = require 'mongoose-trashable'
+trashable = require 'mongoose-trashable'
 
 ## Schema
 schemaStructure =
@@ -27,6 +27,7 @@ WorkerSchema = new Schema(schemaStructure)
 
 ## Plugins
 WorkerSchema.plugin trashable
+
 WorkerSchema.plugin timestamps,
   created: "created_at"
   lastUpdated: "updated_at"

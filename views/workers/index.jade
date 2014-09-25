@@ -40,7 +40,15 @@ block content
             .col-md-1.text-right
               !=helper.genDateTag(worker.updated_at)
             .col-md-1.text-right
-              i.fa.fa-trash-o
+              form.trashed(action="/workers/trashed", method="post")
+                input#worker_id(type='hidden', name='worker_id', value="#{worker.id}")
+                - if(worker.trashed_at!=null){
+                    button.btn-danger(type="submit")
+                      i.fa.fa-medkit
+                - } else{
+                    button.btn-primary(type='submit')
+                      i.fa.fa-trash-o
+                - }
 
   #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
     form.login(action="/workers/new", method="post")
