@@ -18,11 +18,18 @@ exports.authWorker = (req, res, next)->
   Worker.findById workerId, (err, worker)->
     return next err if err?
     return next(new Error "missing worker #{workerId}") unless worker
-
-    if oauth.verify(signature, req.method, req.url, req.body, worker['consumer_secret'])
+    if oauth.verify(signature, req.method, req.url, req.body, worker['consumer_secret']) and not worker.trashed_at?
       req.worker = worker
       next()
     else
       next(new Error "signature mismatch")
     return
   return
+
+exports.updateWorkerAt = (req, res, next) ->
+  signature = req.headers['ticketman-authenticate']
+  workerId = (signature.match(/Ticketman ([^:]+)/) || EMPTY_ARRAY)[1]
+
+  Worker.findByIdAndUpdate workerId, {updated_at: Date.now()}, (err, worker) ->
+    return next err if err?
+    next()

@@ -20,6 +20,7 @@ block content
         .col-md-3 desc
         .col-md-1.text-right created
         .col-md-1.text-right updated
+        .col-md-1.text-right remove
 
     ul.list-group
       each worker in workers
@@ -38,7 +39,16 @@ block content
               !=helper.genDateTag(worker.created_at)
             .col-md-1.text-right
               !=helper.genDateTag(worker.updated_at)
-
+            .col-md-1.text-right
+              form.trashed(action="/workers/trashed", method="post")
+                input#worker_id(type='hidden', name='worker_id', value="#{worker.id}")
+                - if(worker.trashed_at!=null){
+                    button.btn-danger(type="submit")
+                      i.fa.fa-medkit
+                - } else{
+                    button.btn-primary(type='submit')
+                      i.fa.fa-trash-o
+                - }
 
   #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
     form.login(action="/workers/new", method="post")

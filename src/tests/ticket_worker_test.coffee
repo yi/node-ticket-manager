@@ -54,6 +54,24 @@ describe "test ticket_worker", ->
       ticketWorker = new TicketWorker(WORKER_RECORD)
       done()
 
+#    body = {
+#      "__v":0,
+#      "consumer_secret":"73351695-e316-404c-8f12-e1d51f5b6caa",
+#      "updated_at":"2014-03-21T07:47:10.795Z","created_at":"2014-03-21T07:47:10.795Z","name":"test#ht1607cq",
+#      "desc":"just for test","_id":"532bee7e4111ae90693a4292","count_failure":0,"count_success":0}
+#
+#    body.id = body._id
+#    #{"id":"532bebf70f592e0567f63a81"}
+#    WORKER_RECORD = body
+#    WORKER_RECORD.host = HOST
+#    WORKER_RECORD.basicAuth = config.basicAuth
+#    WORKER_RECORD.category = "sample"
+#    WORKER_RECORD.interval = 300
+#    WORKER_RECORD.timeout = 10000
+#
+#    ticketWorker = new TicketWorker(WORKER_RECORD)
+#    done()
+
 
   beforeEach ()->
     ticketWorker.removeAllListeners()
