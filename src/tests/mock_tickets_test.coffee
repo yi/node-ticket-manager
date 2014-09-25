@@ -18,6 +18,8 @@ ticketManager = new TicketManager("test ticket_manager", "http://localhost:3456"
 ## Test cases
 describe "test mock_tickets", ->
 
+  @timeout 30 * 1000
+
   it "should moch 100 tickets", (done) ->
 
     content =
