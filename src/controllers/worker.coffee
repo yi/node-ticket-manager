@@ -8,6 +8,7 @@ exports.index = (req, res, next)->
 
   Worker.find (err, workers)->
     return next err if err?
+    console.dir  workers
     res.render 'workers/index',
       workers : workers
     return
@@ -36,3 +37,6 @@ exports.updateAt = (req, res, next) ->
   Worker.findByIdAndUpdate workerId,update, (err,worker) ->
     return next err if err?
     next()
+
+exports.trashed = (req, res, next) ->
+  return next err if err?

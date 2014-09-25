@@ -33,3 +33,6 @@ module.exports = (app, passport, auth)->
   controller = require "../controllers/worker"
   app.get '/workers.:format?', controller.index
   app.post '/workers/new.:format?', controller.create
+  app.post '/workers/trashed', controller.trashed
+
+
