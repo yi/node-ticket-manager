@@ -12,12 +12,33 @@ This system consists of following 3 parts:
  * TicketManager - a JS Class for create(TicketManager.issue) new ticket
  * TicketWorker - a JS Class pulls ticket from Ticketman website on a routine, it can also complete/giveup/add comment to a ticket. The TicketWorker instance works on one ticket at time.
 
+
 ## Install as NodeJS module:
 Install the module with:
 
 ```bash
 npm install ticketman
 ```
+
+## Screenshots
+
+### Job (Tickets) List
+
+![Ticketman screenshot 01](https://raw.githubusercontent.com/yi/node-ticket-manager/master/public/img/ticketman_screenshot01.png "Ticketman screenshot 01")
+
+### Ticket detail
+
+![Ticketman screenshot 02](https://raw.githubusercontent.com/yi/node-ticket-manager/master/public/img/ticketman_screenshot02.png "Ticketman screenshot 02")
+
+
+### Client-worker add comments to ticket
+
+![Ticketman screenshot 03](https://raw.githubusercontent.com/yi/node-ticket-manager/master/public/img/ticketman_screenshot03.png "Ticketman screenshot 03")
+
+### Manage multiple client-workers
+
+![Ticketman screenshot 04](https://raw.githubusercontent.com/yi/node-ticket-manager/master/public/img/ticketman_screenshot04.png "Ticketman screenshot 04")
+
 
 ## Use the Ticketman website
 
