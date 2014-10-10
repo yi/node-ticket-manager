@@ -1,6 +1,7 @@
 
 mongoose = require('mongoose')
 Ticket = mongoose.model('Ticket')
+crypto = require 'crypto'
 STATUS = require "../enums/ticket_status"
 
 MAX_ATTEMPTS_BEFORE_ABANDON = 16
@@ -82,6 +83,11 @@ exports.show = (req, res, next)->
 # POST /api/tickets/new
 exports.create = (req, res, next)->
   debuglog "create"
+  title = (req.body||{}).title
+  #md5 = crypto.createHash('md5')
+  #md5.update(title||'')
+  #req.body.token = md5.digest('hex')
+  req.body.token = crypto.createHash('md5').update(title).digest('hex').toLowerCase()
   ticket = new Ticket(req.body)
   ticket.save (err)=>
     if err?
@@ -222,6 +228,35 @@ exports.adminComment = (req, res, next)->
     return res.redirect "/tickets/#{id}"
 
   return
+
+#GET /tickets/:token/status
+exports.showStatus = (req, res, next) ->
+  token = req.params.token
+  unless token
+    res.json
+      "success":false
+      "error": "missing param token"
+    return
+  query = {
+    token: token
+  }
+  Ticket.findOne query, (err, ticket) ->
+    if err?
+      res.json
+        "success":false
+        "error": "#{err}"
+      return
+    data =
+      "success": true
+    if ticket?
+      data['result'] =
+        id: ticket.id
+        status: ticket.status
+    else
+      data['result'] = null
+    return res.json data
+  return
+
 
 # routine: clean up overtime processing tickets
 setInterval ()->

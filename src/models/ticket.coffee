@@ -29,6 +29,7 @@ schemaStructure =
     content : String
     date : Date
   }]
+  token: {type:String, trim:true, index:true}
 
 schemaOptions = {}
   #capped : 32768
@@ -102,25 +103,30 @@ TicketSchema.statics.changeStatus = (query, status, callback)->
   else if query.id? then where.push {_id : query.id}
   else return callback(new Error("bad query, missing id neither title"))
 
+  update =
+    status: status
+    updated_at:Date.now()
+
+
   switch status
     when STATUS.COMPLETE
       # abandoned ticket must not be mark as completed
       where.push
         status :
           $ne : STATUS.ABANDON
-
+      update["$unset"] = {"token":""}
     when STATUS.ABANDON
       # completed ticket must not be mark as abandoned
       where.push
         status :
           $ne : STATUS.COMPLETE
-
+      update["$unset"] = {"token":""}
     when STATUS.PROCESSING
       # only pending ticket could be processing
       where.push
         status : STATUS.PENDING
 
-  this.findOneAndUpdate ($and:where), {status: status, updated_at : Date.now()}, (err, ticket)=>
+  this.findOneAndUpdate ($and:where), update, (err, ticket)=>
     console.log "[ticket] err:#{err}, ticket:%j", ticket
     return callback err if err?
     return callback(new Error "missing ticket for query: #{JSON.stringify(query)}") unless ticket?
