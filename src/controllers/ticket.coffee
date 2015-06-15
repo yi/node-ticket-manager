@@ -34,7 +34,7 @@ exports.list = (req, res, next)->
     return next err if err?
     result.success = true
     console.log "[ticket::list] dump result:"
-    console.dir result
+    #console.dir result
     res.json result
   return
 
