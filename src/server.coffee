@@ -58,7 +58,7 @@ mongoose.set('debug', true) if env is 'development'
 # Bootstrap models
 require "./models/ticket"
 require "./models/worker"
-
+require "./utils/clear_db"
 
 app = express()
 
