@@ -27,16 +27,16 @@
   },
   "scripts": {
     "watch": "coffee -o ./lib/ -cw ./src/",
-    "start": "DEBUG=ticketman* ./node_modules/.bin/nodemon lib/server.js",
+    "start": "./node_modules/.bin/nodemon lib/server.js",
     "build": "distill -i ./src/server.coffee -o ./dist/ticketman-www.js",
-    "test": "DEBUG=ticketman* ./node_modules/.bin/mocha tests"
+    "test": "./node_modules/.bin/mocha tests"
   },
   "dependencies": {
     "express": "3.4.8",
     "jade": "1.1.5",
     "connect-mongo": "0.4.0",
     "connect-flash": "0.1.1",
-    "mongoose": "3.8.6",
+    "mongoose": "4.2.10",
     "underscore": "1.5.2",
     "mongoose-times": "0.1.0",
     "mongoose-paginator": "0.2.2",
