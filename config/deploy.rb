@@ -1,7 +1,7 @@
 require 'capistrano/ext/multistage'
 #require 'bundler/capistrano'
 
-set :stages,          %w(local sample stage166 r3 gama rmd)
+set :stages,          %w(local sample stage166 r3 gama rmd wx_colletor wx_110)
 set :default_stage,   "stage166"
 
 set :application, "ticketman"
