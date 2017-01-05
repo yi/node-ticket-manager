@@ -198,6 +198,9 @@ TicketSchema.statics.arrangeAssignment = (options, callback)->
     return
   return
 
+TicketSchema.statics.removeByStatus = (status, callback) ->
+  this.remove {status:status}, callback
+  return
 
 mongoose.model('Ticket', TicketSchema)
 

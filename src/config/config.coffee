@@ -26,4 +26,11 @@ module.exports =
       username : "production"
       password : "123"
 
+  wx_colletor:
+    db: 'mongodb://localhost/ticketman_weixin_colletor'
+    app:
+      name: 'Ticket System'
+    basicAuth:
+      username : "production"
+      password : "123"
 

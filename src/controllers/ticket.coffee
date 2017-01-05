@@ -81,7 +81,7 @@ exports.count = (req, res, next) ->
       allCount += item.count || 0
       result[item.status] = item.count
     result['all'] = allCount
-    console.dir result
+    #console.dir result
     res.json result
     return
   return
