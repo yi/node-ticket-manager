@@ -101,15 +101,18 @@ block content
       console.log("mscroller:"+mscroller);
       console.dir(mscroller);
 
+      var queryCounts = function(){
+        $.get("/tickets/count.json", function(data){
+          for(var key in data){
+            $("#count-"+key).text(data[key]);
+          }
+        });
+      }
+
       // refresh ticket counts
       $(document).ready(function() {
-        setInterval(function(){
-          $.get("/tickets/count.json", function(data){
-            for(var key in data){
-              $("#count-"+key).text(data[key]);
-            }
-          })
-        }, 3000)
+        queryCounts()
+        setInterval(queryCounts, 60000)
       });
 
       // listen to tab switch

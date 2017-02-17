@@ -34,33 +34,55 @@ exports.list = (req, res, next)->
     return next err if err?
     result.success = true
     console.log "[ticket::list] dump result:"
-    console.dir result
+    #console.dir result
     res.json result
   return
 
 
-exports.count = (req, res, next)->
+#exports.count = (req, res, next)->
+#  result = {}
+#  Ticket.count (err, count)->
+#    next err if err?
+#    result.all = count
+#    Ticket.count {status: STATUS.PENDING}, (err, count)->
+#      next err if err?
+#      result[STATUS.PENDING] = count
+#      Ticket.count {status: STATUS.PROCESSING}, (err, count)->
+#        next err if err?
+#        result[STATUS.PROCESSING] = count
+#        Ticket.count {status: STATUS.COMPLETE}, (err, count)->
+#          next err if err?
+#          result[STATUS.COMPLETE] = count
+#          Ticket.count {status: STATUS.ABANDON}, (err, count)->
+#            next err if err?
+#            result[STATUS.ABANDON] = count
+#            console.dir result
+#            res.json result
+#            return
+#          return
+#        return
+#      return
+#    return
+#  return
+
+exports.count = (req, res, next) ->
+  group =
+    key:
+      status:1
+    reduce: (doc, out) ->
+      out.count++
+    initial:
+      count: 0
   result = {}
-  Ticket.count (err, count)->
-    next err if err?
-    result.all = count
-    Ticket.count {status: STATUS.PENDING}, (err, count)->
-      next err if err?
-      result[STATUS.PENDING] = count
-      Ticket.count {status: STATUS.PROCESSING}, (err, count)->
-        next err if err?
-        result[STATUS.PROCESSING] = count
-        Ticket.count {status: STATUS.COMPLETE}, (err, count)->
-          next err if err?
-          result[STATUS.COMPLETE] = count
-          Ticket.count {status: STATUS.ABANDON}, (err, count)->
-            next err if err?
-            result[STATUS.ABANDON] = count
-            res.json result
-            return
-          return
-        return
-      return
+  Ticket.collection.group group.key, group.cond, group.initial, group.reduce, group.finalize, true, (err, items) ->
+    console.error err if err?
+    allCount = 0
+    items.map (item) ->
+      allCount += item.count || 0
+      result[item.status] = item.count
+    result['all'] = allCount
+    #console.dir result
+    res.json result
     return
   return
 
