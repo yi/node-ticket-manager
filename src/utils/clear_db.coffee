@@ -17,6 +17,11 @@ _removeCompleted = (callback) ->
   #  return
   #return
 
+_removeAbandoned = (callback) ->
+  Ticket.removeByStatus STATUS.ABANDON, callback
+  return
+
+
 start = () ->
   setTimeout () ->
     _removeCompleted (err) ->
@@ -24,4 +29,15 @@ start = () ->
       start()
   , 7200000
 
+start2 = () ->
+  setTimeout () ->
+    _removeAbandoned (err) ->
+      console.error "clear_db::removeCompleted ERROR: #{err}" if err?
+      start()
+  , 28800000
+
+
 start()
+
+start2()
+
