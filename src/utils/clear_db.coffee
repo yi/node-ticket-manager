@@ -32,8 +32,8 @@ start = () ->
 start2 = () ->
   setTimeout () ->
     _removeAbandoned (err) ->
-      console.error "clear_db::removeCompleted ERROR: #{err}" if err?
-      start()
+      console.error "clear_db::removeAbandoned ERROR: #{err}" if err?
+      start2()
   , 28800000
 
 
