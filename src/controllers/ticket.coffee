@@ -133,6 +133,8 @@ exports.assign = (req, res, next)->
       return res.json
         success : false
         error : "no pending ticket of #{req.body.category}"
+    # clear comments when assign ticket
+    ticket.comments = []
 
     return res.json
       success : true

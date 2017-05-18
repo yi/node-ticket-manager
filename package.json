@@ -1,7 +1,7 @@
 {
   "name": "ticketman",
   "description": "A simple pull-based job/ticket system contians a centeral ticket dispatcher and distributed workers. This system is written in NodeJS, runing on MongoDB",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "homepage": "https://github.com/yi/node-ticket-manager",
   "author": {
     "name": "yi",
@@ -32,21 +32,22 @@
     "test": "DEBUG=ticketman* ./node_modules/.bin/mocha tests"
   },
   "dependencies": {
+    "async": "0.2.10",
+    "commander": ">=1.0.1",
+    "compression": "^1.6.2",
+    "connect-flash": "0.1.1",
+    "connect-mongo": "0.4.0",
+    "debug": "0.7.4",
     "express": "3.4.8",
     "jade": "1.1.5",
-    "connect-mongo": "0.4.0",
-    "connect-flash": "0.1.1",
     "mongoose": "3.8.25",
-    "underscore": "1.5.2",
-    "mongoose-times": "0.1.0",
     "mongoose-paginator": "0.2.2",
+    "mongoose-times": "0.1.0",
     "mongoose-trashable": "0.1.2",
-    "commander": ">=1.0.1",
-    "udid": "0.1.4",
-    "debug": "0.7.4",
     "oauth-sign": ">=0.4.0",
-    "async": "0.2.10",
-    "request": ">=2.27.0"
+    "request": ">=2.27.0",
+    "udid": "0.1.4",
+    "underscore": "1.5.2"
   },
   "devDependencies": {
     "nodemon": ">=1.0.14",
@@ -54,5 +55,10 @@
     "mocha": ">=1.3.2",
     "should": ">=1.1.0"
   },
-  "keywords": ["queue", "ticket", "job", "pull"]
+  "keywords": [
+    "queue",
+    "ticket",
+    "job",
+    "pull"
+  ]
 }
