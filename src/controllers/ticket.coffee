@@ -112,6 +112,14 @@ exports.assign = (req, res, next)->
         success : false
         error : "no pending ticket of #{req.body.category}"
 
+    # clear comments when assign ticket
+    ticket.comments = []
+    #console.log "!!!! before assign"
+    #console.dir ticket
+
+    #ticket = JSON.stringify(ticket)
+    #ticket = JSON.parse(ticket)
+
     return res.json
       success : true
       ticket : ticket

@@ -7,6 +7,7 @@
 ## Module dependencies.
 
 express = require('express')
+compression = require('compression')
 fs = require('fs')
 p = require "commander"
 path = require "path"
@@ -61,6 +62,7 @@ require "./models/worker"
 
 
 app = express()
+app.use(compression())
 
 # 启动 express web 框架
 require('./config/express')(app, config)
