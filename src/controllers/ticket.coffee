@@ -158,7 +158,7 @@ exports.comment = (req, res, next)->
 
     return res.json
       success : true
-      ticket : ticket
+      #ticket : ticket
 
   return
 
@@ -172,7 +172,8 @@ exports.complete = (req, res, next)->
   Ticket.changeStatus req.body, STATUS.COMPLETE, (err, ticket)->
     return next(err) if err?
     return next() unless ticket?
-    return res.json ticket
+    #return res.json ticket
+    return res.json {success:true}
   return
 
 
@@ -207,7 +208,8 @@ exports.giveup = (req, res, next)->
       ticket.update {$inc: {attempts:1}}, (err, numberAffected)->
         return next(err) if err?
         ticket.attempts = numberAffected
-        return res.json ticket
+        #return res.json ticket
+        return res.json {success: true}
 
       return
     return

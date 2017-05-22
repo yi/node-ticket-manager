@@ -1,7 +1,7 @@
 {
   "name": "ticketman",
   "description": "A simple pull-based job/ticket system contians a centeral ticket dispatcher and distributed workers. This system is written in NodeJS, runing on MongoDB",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "homepage": "https://github.com/yi/node-ticket-manager",
   "author": {
     "name": "yi",
