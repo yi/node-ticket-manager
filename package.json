@@ -40,7 +40,7 @@
     "debug": "3.1.0",
     "express": "3.4.8",
     "jade": "1.1.5",
-    "mongoose": "4.2.10",
+    "mongoose": "5.7.6",
     "mongoose-paginator": "0.2.2",
     "mongoose-times": "0.1.0",
     "mongoose-trashable": "0.1.2",
